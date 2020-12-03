@@ -4,7 +4,7 @@ with open("README.md", "r") as fh:
     long_description = fh.read()
 
 setuptools.setup(
-    name="example-pkg-YOUR-USERNAME-HERE",
+    name="pygrad",
     version="0.0.1",
     author="Jake Tae",
     author_email="jaesungtae@gmail.com",
