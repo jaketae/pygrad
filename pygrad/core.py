@@ -20,7 +20,7 @@ class Variable:
 
         funcs = [self.creator]
         while funcs:
-            f = creators.pop()
+            f = funcs.pop()
             x, y = f.input, f.output
             x.grad = f.backward(y.grad)
 
