@@ -1,4 +1,6 @@
-from deepzero.core import Exp, Square
+import numpy as np
+
+from pygrad.core import Function
 
 
 class Exp(Function):
