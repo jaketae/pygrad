@@ -17,14 +17,11 @@ class Variable:
     def backward(self):
         if self.grad is None:
             self.grad = np.ones_like(self.data)
-
         funcs = [self.creator]
         while funcs:
             f = funcs.pop()
             gys = [output.grad for output in f.outputs]
-            gxs = f.backward(*gys)
-            if not isinstance(gxs, tuple):
-                gxs = (gxs,)
+            gxs = as_tuple(f.backward(*gys))
             for x, gx in zip(f.inputs, gxs):
                 x.grad = gx
                 if x.creator is not None:
@@ -34,9 +31,7 @@ class Variable:
 class Function:
     def __call__(self, *inputs):
         xs = [x.data for x in inputs]
-        ys = self.forward(*xs)
-        if not isinstance(ys, tuple):
-            ys = (ys,)
+        ys = as_tuple(self.forward(*xs))
         outputs = [Variable(as_array(y)) for y in ys]
         for output in outputs:
             output.set_creator(self)
@@ -56,4 +51,10 @@ class Function:
 def as_array(x):
     if np.isscalar(x):
         return np.asarray(x)
+    return x
+
+
+def as_tuple(x):
+    if not isinstance(x, tuple):
+        return (x,)
     return x
