@@ -29,18 +29,24 @@ class Variable:
 
 
 class Function:
-    def __call__(self, input_):
-        y = self.forward(input_.data)
-        output = Variable(as_array(y))
-        output.set_creator(self)
-        self.input = input_
-        self.output = output
-        return output
+    def __call__(self, *inputs):
+        xs = [x.data for x in inputs]
+        ys = self.forward(*xs)
+        if not isinstance(ys, tuple):
+            ys = (ys,)
+        output = [Variable(as_array(y)) for y in ys]
+        for output in outputs:
+            output.set_creator(self)
+        self.inputs = inputs
+        self.outputs = outputs
+        if len(outputs) > 1:
+            return outputs
+        return outputs[0]
 
-    def forward(self, x):
+    def forward(self, xs):
         raise NotImplementedError
 
-    def backward(self, grad):
+    def backward(self, gys):
         raise NotImplementedError
 
 
