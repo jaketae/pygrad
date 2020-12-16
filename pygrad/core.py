@@ -6,7 +6,6 @@ class Variable:
         if data is not None:
             if not isinstance(data, np.ndarray):
                 raise TypeError(f"{type(data)} is not supported.")
-
         self.data = data
         self.grad = None
         self.creator = None
@@ -23,7 +22,10 @@ class Variable:
             gys = [output.grad for output in f.outputs]
             gxs = as_tuple(f.backward(*gys))
             for x, gx in zip(f.inputs, gxs):
-                x.grad = gx
+                if x.grad is None:
+                    x.grad = gx
+                else:
+                    x.grad = x.grad + gx
                 if x.creator is not None:
                     funcs.append(x.creator)
 
