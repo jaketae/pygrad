@@ -34,7 +34,7 @@ class Function:
         ys = self.forward(*xs)
         if not isinstance(ys, tuple):
             ys = (ys,)
-        output = [Variable(as_array(y)) for y in ys]
+        outputs = [Variable(as_array(y)) for y in ys]
         for output in outputs:
             output.set_creator(self)
         self.inputs = inputs
