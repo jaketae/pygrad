@@ -19,9 +19,18 @@ class Square(Function):
         return grad * 2 * self.input.data
 
 
+class Add(Function):
+    def forward(self, x0, x1):
+        return x0 + x1
+
+
 def square(x):
     return Square()(x)
 
 
 def exp(x):
     return Exp()(x)
+
+
+def add(x0, x1):
+    return Add()(x0, x1)
