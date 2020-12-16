@@ -7,21 +7,28 @@ class Exp(Function):
     def forward(self, x):
         return np.exp(x)
 
-    def backward(self, grad):
-        return grad * np.exp(self.input.data)
+    def backward(self, gy):
+        x = self.inputs[0].data
+        gx = gy * np.exp(x)
+        return gx
 
 
 class Square(Function):
     def forward(self, x):
         return x ** 2
 
-    def backward(self, grad):
-        return grad * 2 * self.input.data
+    def backward(self, gy):
+        x = self.inputs[0].data
+        gx = 2 * x * gy
+        return gx
 
 
 class Add(Function):
     def forward(self, x0, x1):
         return x0 + x1
+
+    def backward(self, gy):
+        return gy, gy
 
 
 def square(x):
