@@ -1,3 +1,5 @@
+import heapq
+
 import numpy as np
 
 
@@ -9,16 +11,19 @@ class Variable:
         self.data = data
         self.grad = None
         self.creator = None
+        self.generation = 0
 
     def set_creator(self, func):
         self.creator = func
+        self.generation = func.generation + 1
 
     def backward(self):
         if self.grad is None:
             self.grad = np.ones_like(self.data)
         funcs = [self.creator]
+        seen_set = set([self.creator])
         while funcs:
-            f = funcs.pop()
+            f = heapq.heappop(funcs)
             gys = [output.grad for output in f.outputs]
             gxs = as_tuple(f.backward(*gys))
             for x, gx in zip(f.inputs, gxs):
@@ -27,7 +32,9 @@ class Variable:
                 else:
                     x.grad = x.grad + gx
                 if x.creator is not None:
-                    funcs.append(x.creator)
+                    if x.creator not in seen_set:
+                        seen_set.add(x.creator)
+                        heapq.heappush(funcs, x.creator)
 
 
 class Function:
@@ -35,6 +42,7 @@ class Function:
         xs = [x.data for x in inputs]
         ys = as_tuple(self.forward(*xs))
         outputs = [Variable(as_array(y)) for y in ys]
+        self.generation = max([x.generation for x in inputs])
         for output in outputs:
             output.set_creator(self)
         self.inputs = inputs
@@ -42,6 +50,9 @@ class Function:
         if len(outputs) > 1:
             return outputs
         return outputs[0]
+
+    def __lt__(self, other):
+        return self.generation > other.generation
 
     def forward(self, xs):
         raise NotImplementedError
