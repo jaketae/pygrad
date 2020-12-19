@@ -1,4 +1,5 @@
 import heapq
+import weakref
 
 import numpy as np
 
@@ -29,7 +30,7 @@ class Variable:
         seen_set = set(funcs)
         while funcs:
             f = heapq.heappop(funcs)
-            gys = [output.grad for output in f.outputs]
+            gys = [output().grad for output in f.outputs]
             gxs = as_tuple(f.backward(*gys))
             for x, gx in zip(f.inputs, gxs):
                 if x.grad is None:
@@ -47,10 +48,11 @@ class Function:
         ys = as_tuple(self.forward(*xs))
         self.inputs = inputs
         self.generation = max([x.generation for x in inputs])
-        self.outputs = [Variable(y).set_creator(self, return_var=True) for y in ys]
-        if len(self.outputs) > 1:
-            return self.outputs
-        return self.outputs[0]
+        outputs = [Variable(y).set_creator(self, return_var=True) for y in ys]
+        self.outputs = [weakref.ref(output) for output in outputs]
+        if len(outputs) > 1:
+            return outputs
+        return outputs[0]
 
     def __lt__(self, other):
         return self.generation > other.generation
