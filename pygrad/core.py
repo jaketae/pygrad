@@ -24,11 +24,12 @@ def no_grad():
 
 
 class Variable:
-    def __init__(self, data):
+    def __init__(self, data, name=None):
         self.grad = None
         self.creator = None
         self.generation = 0
         self.data = np.asarray(data)
+        self.name = name
 
     def set_creator(self, func):
         self.creator = func
@@ -58,6 +59,25 @@ class Variable:
             if not retain_grad:
                 for y in f.outputs:
                     y().clear_grad()
+
+    @property
+    def shape(self):
+        return self.data.shape
+
+    @property
+    def ndim(self):
+        return self.data.ndim
+
+    @property
+    def size(self):
+        return self.data.size
+
+    @property
+    def dtype(self):
+        return self.data.dtype
+
+    def __len__(self):
+        return len(self.data)
 
 
 class Function:
