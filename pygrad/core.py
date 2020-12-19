@@ -17,6 +17,9 @@ class Variable:
         self.creator = func
         self.generation = func.generation + 1
 
+    def clear_grad(self):
+        self.grad = None
+
     def backward(self):
         if self.grad is None:
             self.grad = np.ones_like(self.data)
