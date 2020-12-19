@@ -1,7 +1,26 @@
+import contextlib
 import heapq
 import weakref
 
 import numpy as np
+
+
+class Config:
+    enable_backprop = True
+
+
+@contextlib.contextmanager
+def using_config(name, value):
+    prev_value = getattr(Config, name)
+    setattr(Config, name, value)
+    try:
+        yield
+    finally:
+        setattr(Cofig, name, prev_value)
+
+
+def no_grad():
+    return using_config("enable_backprop", False)
 
 
 class Variable:
@@ -45,10 +64,11 @@ class Function:
     def __call__(self, *inputs):
         xs = [x.data for x in inputs]
         ys = as_tuple(self.forward(*xs))
-        self.inputs = inputs
-        self.generation = max([x.generation for x in inputs])
         outputs = [Variable(y).set_creator(self) for y in ys]
-        self.outputs = [weakref.ref(output) for output in outputs]
+        if Config.enable_backprop:
+            self.inputs = inputs
+            self.generation = max([x.generation for x in inputs])
+            self.outputs = [weakref.ref(output) for output in outputs]
         if len(outputs) > 1:
             return outputs
         return outputs[0]
