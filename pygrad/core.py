@@ -79,6 +79,10 @@ class Variable:
     def __len__(self):
         return len(self.data)
 
+    def __repr__(self):
+        data_string = str(self.data).replace("\n", "\n" + " " * 9)
+        return f"Variable({data_string})"
+
 
 class Function:
     def __call__(self, *inputs):
