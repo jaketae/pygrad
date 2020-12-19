@@ -6,24 +6,20 @@ import numpy as np
 
 class Variable:
     def __init__(self, data):
-        if isinstance(data, np.ndarray):
-            self.data = data
-        else:
-            self.data = np.asarray(data)
         self.grad = None
         self.creator = None
         self.generation = 0
+        self.data = np.asarray(data)
 
-    def set_creator(self, func, return_var=False):
+    def set_creator(self, func):
         self.creator = func
         self.generation = func.generation + 1
-        if return_var:
-            return self
+        return self
 
     def clear_grad(self):
         self.grad = None
 
-    def backward(self):
+    def backward(self, retain_grad=False):
         if self.grad is None:
             self.grad = np.ones_like(self.data)
         funcs = [self.creator]
@@ -40,6 +36,9 @@ class Variable:
                 if not (x.creator is None or x.creator in seen_set):
                     seen_set.add(x.creator)
                     heapq.heappush(funcs, x.creator)
+            if not retain_grad:
+                for y in f.outputs:
+                    y().clear_grad()
 
 
 class Function:
@@ -48,7 +47,7 @@ class Function:
         ys = as_tuple(self.forward(*xs))
         self.inputs = inputs
         self.generation = max([x.generation for x in inputs])
-        outputs = [Variable(y).set_creator(self, return_var=True) for y in ys]
+        outputs = [Variable(y).set_creator(self) for y in ys]
         self.outputs = [weakref.ref(output) for output in outputs]
         if len(outputs) > 1:
             return outputs
