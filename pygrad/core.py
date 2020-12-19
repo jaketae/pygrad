@@ -30,6 +30,9 @@ def as_tuple(x):
 
 
 class Variable:
+
+    __array_priority__ = 100
+
     def __init__(self, data, name=None):
         self.grad = None
         self.creator = None
@@ -90,8 +93,15 @@ class Variable:
         return f"Variable({data_string})"
 
 
+def as_variable(obj):
+    if isinstance(obj, Variable):
+        return obj
+    return Variable(obj)
+
+
 class Function:
     def __call__(self, *inputs):
+        inputs = [as_variable(x) for x in inputs]
         xs = [x.data for x in inputs]
         ys = as_tuple(self.forward(*xs))
         outputs = [Variable(y) for y in ys]
@@ -137,3 +147,9 @@ class Mul(Function):
 
 def mul(x0, x1):
     return Mul()(x0, x1)
+
+
+Variable.__add__ = add
+Variable.__radd__ = add
+Variable.__mul__ = mul
+Variable.__rmul__ = mul
