@@ -135,6 +135,18 @@ def add(x0, x1):
     return Add()(x0, x1)
 
 
+class Neg(Function):
+    def forward(self, x):
+        return -x
+
+    def backward(self, gy):
+        return -gy
+
+
+def neg(x):
+    return Neg()(x)
+
+
 class Mul(Function):
     def forward(self, x0, x1):
         return x0 * x1
@@ -151,5 +163,6 @@ def mul(x0, x1):
 
 Variable.__add__ = add
 Variable.__radd__ = add
+Variable.__neg__ = neg
 Variable.__mul__ = mul
 Variable.__rmul__ = mul
