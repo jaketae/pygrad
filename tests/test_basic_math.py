@@ -25,4 +25,3 @@ class TestSquare(unittest.TestCase):
         self.y.backward()
         expected = numerical_grad(square, self.x)
         self.assertTrue(np.allclose(self.x.grad, expected))
-
