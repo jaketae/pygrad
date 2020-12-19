@@ -88,11 +88,11 @@ class Function:
     def __call__(self, *inputs):
         xs = [x.data for x in inputs]
         ys = as_tuple(self.forward(*xs))
-        outputs = [Variable(y).set_creator(self) for y in ys]
+        outputs = [Variable(y) for y in ys]
         if Config.enable_backprop:
             self.inputs = inputs
             self.generation = max([x.generation for x in inputs])
-            self.outputs = [weakref.ref(output) for output in outputs]
+            self.outputs = [weakref.ref(output.set_creator(self)) for output in outputs]
         if len(outputs) > 1:
             return outputs
         return outputs[0]
