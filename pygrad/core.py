@@ -13,9 +13,11 @@ class Variable:
         self.creator = None
         self.generation = 0
 
-    def set_creator(self, func):
+    def set_creator(self, func, return_var=False):
         self.creator = func
         self.generation = func.generation + 1
+        if return_var:
+            return self
 
     def clear_grad(self):
         self.grad = None
@@ -24,7 +26,7 @@ class Variable:
         if self.grad is None:
             self.grad = np.ones_like(self.data)
         funcs = [self.creator]
-        seen_set = set([self.creator])
+        seen_set = set(funcs)
         while funcs:
             f = heapq.heappop(funcs)
             gys = [output.grad for output in f.outputs]
@@ -34,21 +36,18 @@ class Variable:
                     x.grad = gx
                 else:
                     x.grad = x.grad + gx
-                if x.creator is not None:
-                    if x.creator not in seen_set:
-                        seen_set.add(x.creator)
-                        heapq.heappush(funcs, x.creator)
+                if not (x.creator is None or x.creator in seen_set):
+                    seen_set.add(x.creator)
+                    heapq.heappush(funcs, x.creator)
 
 
 class Function:
     def __call__(self, *inputs):
         xs = [x.data for x in inputs]
         ys = as_tuple(self.forward(*xs))
-        outputs = [Variable(as_array(y)) for y in ys]
-        self.generation = max([x.generation for x in inputs])
-        for output in outputs:
-            output.set_creator(self)
         self.inputs = inputs
+        self.generation = max([x.generation for x in inputs])
+        outputs = [Variable(as_array(y)).set_creator(self, return_var=True) for y in ys]
         self.outputs = outputs
         if len(outputs) > 1:
             return outputs
