@@ -5,10 +5,10 @@ import numpy as np
 
 class Variable:
     def __init__(self, data):
-        if data is not None:
-            if not isinstance(data, np.ndarray):
-                raise TypeError(f"{type(data)} is not supported.")
-        self.data = data
+        if isinstance(data, np.ndarray):
+            self.data = data
+        else:
+            self.data = np.asarray(data)
         self.grad = None
         self.creator = None
         self.generation = 0
@@ -47,11 +47,10 @@ class Function:
         ys = as_tuple(self.forward(*xs))
         self.inputs = inputs
         self.generation = max([x.generation for x in inputs])
-        outputs = [Variable(as_array(y)).set_creator(self, return_var=True) for y in ys]
-        self.outputs = outputs
-        if len(outputs) > 1:
-            return outputs
-        return outputs[0]
+        self.outputs = [Variable(y).set_creator(self, return_var=True) for y in ys]
+        if len(self.outputs) > 1:
+            return self.outputs
+        return self.outputs[0]
 
     def __lt__(self, other):
         return self.generation > other.generation
@@ -61,12 +60,6 @@ class Function:
 
     def backward(self, gys):
         raise NotImplementedError
-
-
-def as_array(x):
-    if np.isscalar(x):
-        return np.asarray(x)
-    return x
 
 
 def as_tuple(x):
