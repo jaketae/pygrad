@@ -99,6 +99,9 @@ class Variable:
             axes = axes[0]
         return pygrad.functions.transpose(self, axes)
 
+    def sum(self, axis=None, keepdims=False):
+        return pygrad.functions.sum(self, axis, keepdims)
+
     def reshape(self, *shape):
         if len(shape) == 1 and isinstance(shape, (tuple, list)):
             shape = shape[0]

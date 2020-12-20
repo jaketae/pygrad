@@ -98,3 +98,21 @@ class Transpose(Function):
 
 def transpose(x, axes=None):
     return Transpose(axes)(x)
+
+
+class Sum(Function):
+    def __init__(self, axis, keepdims):
+        self.axis = axis
+        self.keepdims = keepdims
+
+    def forward(self, x):
+        self.x_shape = x.shape
+        return x.sum(axis=self.axis, keepdims=self.keepdims)
+
+    # def backward(self, gy):
+    #     raise NotImplementedError
+
+
+def sum(x, axis=None, keepdims=False):
+    return Sum(axis, keepdims)(x)
+
