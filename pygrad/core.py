@@ -190,6 +190,8 @@ def mul(x0, x1):
 
 class Div(Function):
     def forward(self, x0, x1):
+        if 0 in x1:
+            raise ZeroDivisionError("division by variable containing zero")
         return x0 / x1
 
     def backward(self, gy):
