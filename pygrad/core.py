@@ -34,6 +34,8 @@ class Variable:
     __array_priority__ = 100
 
     def __init__(self, data, name=None):
+        if isinstance(data, Variable):
+            data = data.data
         self.grad = None
         self.creator = None
         self.generation = 0
@@ -89,6 +91,11 @@ class Variable:
 
     def __len__(self):
         return len(self.data)
+
+    def __eq__(self, other):
+        if isinstance(other, Variable):
+            return np.array_equal(self.data, other.data)
+        return False
 
     def __repr__(self):
         data_string = str(self.data).replace("\n", "\n" + " " * 9)
