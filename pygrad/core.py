@@ -97,8 +97,6 @@ class Variable:
             axes = None
         elif len(axes) == 1 and isinstance(axes[0], (tuple, list)) or axes[0] is None:
             axes = axes[0]
-        if axes and len(axes) != self.ndim:
-            raise ValueError("`axes` and number of dimensions do not match")
         return pygrad.functions.transpose(self, axes)
 
     def reshape(self, *shape):
@@ -116,7 +114,7 @@ class Variable:
 
     def backward(self, retain_grad=False, create_graph=False):
         if self.creator is None:
-            raise ValueError("backprop on root variable")
+            raise RuntimeError("backprop on root variable")
         if self.grad is None:
             self.grad = Variable(np.ones_like(self.data))
         funcs = [self.creator]
