@@ -89,6 +89,11 @@ class Variable:
     def clear_grad(self):
         self.grad = None
 
+    def reshape(self, *shape):
+        if len(shape) == 1 and isinstance(shape, (tuple, list)):
+            shape = shape[0]
+        return pygrad.functions.reshape(self, shape)
+
     def backward(self, retain_grad=False, create_graph=False):
         if self.creator is None:
             raise ValueError("backprop on root variable")
