@@ -16,7 +16,7 @@ def using_config(name, value):
     try:
         yield
     finally:
-        setattr(Cofig, name, prev_value)
+        setattr(Config, name, prev_value)
 
 
 def no_grad():
@@ -50,9 +50,9 @@ class Variable:
     def clear_grad(self):
         self.grad = None
 
-    def backward(self, retain_grad=False):
+    def backward(self, retain_grad=False, create_graph=False):
         if self.creator is None:
-            raise ValueError("Cannot backprop on root variable")
+            raise ValueError("backprop on root variable")
         if self.grad is None:
             self.grad = Variable(np.ones_like(self.data))
         funcs = [self.creator]
@@ -60,15 +60,16 @@ class Variable:
         while funcs:
             f = heapq.heappop(funcs)
             gys = [output().grad for output in f.outputs]
-            gxs = as_tuple(f.backward(*gys))
-            for x, gx in zip(f.inputs, gxs):
-                if x.grad is None:
-                    x.grad = gx
-                else:
-                    x.grad = x.grad + gx
-                if not (x.creator is None or x.creator in seen_set):
-                    seen_set.add(x.creator)
-                    heapq.heappush(funcs, x.creator)
+            with using_config("enable_backprop", create_graph):
+                gxs = as_tuple(f.backward(*gys))
+                for x, gx in zip(f.inputs, gxs):
+                    if x.grad is None:
+                        x.grad = gx
+                    else:
+                        x.grad = x.grad + gx
+                    if not (x.creator is None or x.creator in seen_set):
+                        seen_set.add(x.creator)
+                        heapq.heappush(funcs, x.creator)
             if not retain_grad:
                 for y in f.outputs:
                     y().clear_grad()
