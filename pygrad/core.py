@@ -84,6 +84,28 @@ class Variable:
     def dtype(self):
         return self.data.dtype
 
+    @property
+    def T(self):
+        if self.ndim == 0:
+            return self
+        return pygrad.functions.transpose(self)
+
+    def transpose(self, *axes):
+        if self.ndim == 0:
+            return self
+        if len(axes) == 0:
+            axes = None
+        elif len(axes) == 1 and isinstance(axes[0], (tuple, list)) or axes[0] is None:
+            axes = axes[0]
+        if axes and len(axes) != self.ndim:
+            raise ValueError("`axes` and dimensions do not match")
+        return pygrad.functions.transpose(self, axes)
+
+    def reshape(self, *shape):
+        if len(shape) == 1 and isinstance(shape, (tuple, list)):
+            shape = shape[0]
+        return pygrad.functions.reshape(self, shape)
+
     def set_creator(self, func):
         self.creator = func
         self.generation = func.generation + 1
@@ -91,11 +113,6 @@ class Variable:
 
     def clear_grad(self):
         self.grad = None
-
-    def reshape(self, *shape):
-        if len(shape) == 1 and isinstance(shape, (tuple, list)):
-            shape = shape[0]
-        return pygrad.functions.reshape(self, shape)
 
     def backward(self, retain_grad=False, create_graph=False):
         if self.creator is None:
