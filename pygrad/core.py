@@ -59,6 +59,9 @@ class Variable:
             return np.array_equal(self.data, other.data)
         return False
 
+    def __getitem__(self, key):
+        return as_variable(self.data[key])
+
     def __repr__(self):
         data_string = str(self.data).replace("\n", "\n" + " " * 9)
         if self.name is None:
