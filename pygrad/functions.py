@@ -1,6 +1,6 @@
 import numpy as np
 
-from pygrad.core import Function
+from pygrad.core import Function, as_variable
 
 
 class Exp(Function):
@@ -46,6 +46,7 @@ class Cos(Function):
     def backward(self, gy):
         return -gy * sin(self.inputs[0])
 
+
 def cos(x):
     return Cos()(x)
 
@@ -53,11 +54,29 @@ def cos(x):
 class Tanh(Function):
     def forward(self, x):
         return np.tanh(x)
-    
+
     def backward(self, gy):
         y = self.outputs[0]()
         return gy * (1 - y * y)
 
+
 def tanh(x):
     return Tanh()(x)
 
+
+class Reshape(Function):
+    def __init__(self, shape):
+        self.shape = shape
+
+    def forward(self, x):
+        self.x_shape = x.shape
+        return x.reshape(self.shape)
+
+    def backward(self, gy):
+        return reshape(gy, self.x_shape)
+
+
+def reshape(x, shape):
+    if x.shape == shape:
+        return as_variable(x)
+    return Reshape(shape)(x)
