@@ -4,6 +4,8 @@ import weakref
 
 import numpy as np
 
+import pygrad
+
 
 class Config:
     enable_backprop = True
@@ -36,11 +38,48 @@ class Variable:
     def __init__(self, data, name=None):
         if isinstance(data, Variable):
             data = data.data
+        self.data = np.asarray(data)
+        data_dtype = self.data.dtype
+        if not np.issubdtype(data_dtype, np.number):
+            raise TypeError(
+                f"invalid data type '{data_dtype.type.__name__}' for `data`"
+            )
+        if name and not isinstance(name, str):
+            raise TypeError(f"invalid data type '{type(name).__name__}' for `name`")
+        self.name = name
         self.grad = None
         self.creator = None
         self.generation = 0
-        self.data = np.asarray(data)
-        self.name = name
+
+    def __len__(self):
+        return len(self.data)
+
+    def __eq__(self, other):
+        if isinstance(other, Variable):
+            return np.array_equal(self.data, other.data)
+        return False
+
+    def __repr__(self):
+        data_string = str(self.data).replace("\n", "\n" + " " * 9)
+        if self.name is None:
+            return f"Variable({data_string})"
+        return f"Variable({data_string}), {self.name}"
+
+    @property
+    def shape(self):
+        return self.data.shape
+
+    @property
+    def ndim(self):
+        return self.data.ndim
+
+    @property
+    def size(self):
+        return self.data.size
+
+    @property
+    def dtype(self):
+        return self.data.dtype
 
     def set_creator(self, func):
         self.creator = func
@@ -73,36 +112,6 @@ class Variable:
             if not retain_grad:
                 for y in f.outputs:
                     y().clear_grad()
-
-    @property
-    def shape(self):
-        return self.data.shape
-
-    @property
-    def ndim(self):
-        return self.data.ndim
-
-    @property
-    def size(self):
-        return self.data.size
-
-    @property
-    def dtype(self):
-        return self.data.dtype
-
-    def __len__(self):
-        return len(self.data)
-
-    def __eq__(self, other):
-        if isinstance(other, Variable):
-            return np.array_equal(self.data, other.data)
-        return False
-
-    def __repr__(self):
-        data_string = str(self.data).replace("\n", "\n" + " " * 9)
-        if self.name is None:
-            return f"Variable({data_string})"
-        return f"Variable({data_string}), {self.name}"
 
 
 def as_variable(obj):
