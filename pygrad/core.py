@@ -98,7 +98,7 @@ class Variable:
         elif len(axes) == 1 and isinstance(axes[0], (tuple, list)) or axes[0] is None:
             axes = axes[0]
         if axes and len(axes) != self.ndim:
-            raise ValueError("`axes` and dimensions do not match")
+            raise ValueError("`axes` and number of dimensions do not match")
         return pygrad.functions.transpose(self, axes)
 
     def reshape(self, *shape):
