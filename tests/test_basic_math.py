@@ -13,15 +13,15 @@ class TestSquare(unittest.TestCase):
         self.y = square(self.x)
 
     def test_forward(self):
-        expected = self.x.data ** 2
-        self.assertEqual(self.y.data, expected)
+        expected = self.x ** 2
+        self.assertEqual(self.y, expected)
 
     def test_backward(self):
         self.y.backward()
-        expected = self.x.data * 2
+        expected = self.x * 2
         self.assertEqual(self.x.grad, expected)
 
     def test_gradient_check(self):
         self.y.backward()
         expected = numerical_grad(square, self.x)
-        self.assertTrue(np.allclose(self.x.grad, expected))
+        self.assertTrue(np.allclose(self.x.grad.data, expected.data))
