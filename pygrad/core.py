@@ -52,7 +52,7 @@ class Variable:
         if self.creator is None:
             raise ValueError("Cannot backprop on root variable")
         if self.grad is None:
-            self.grad = np.ones_like(self.data)
+            self.grad = Variable(np.ones_like(self.data))
         funcs = [self.creator]
         seen_set = set(funcs)
         while funcs:
@@ -172,8 +172,7 @@ class Mul(Function):
         return x0 * x1
 
     def backward(self, gy):
-        x0 = self.inputs[0].data
-        x1 = self.inputs[1].data
+        x0, x1 = self.inputs
         return gy * x1, gy * x0
 
 
@@ -186,8 +185,7 @@ class Div(Function):
         return x0 / x1
 
     def backward(self, gy):
-        x0 = self.inputs[0].data
-        x1 = self.inputs[1].data
+        x0, x1 = self.inputs
         gx0 = gy / x1
         gx1 = -gy * x0 / (x1 ** 2)
         return gx0, gx1
@@ -209,7 +207,7 @@ class Pow(Function):
         return x ** self.c
 
     def backward(self, gy):
-        x = self.inputs[0].data
+        x = self.inputs[0]
         return gy * self.c * x ** (self.c - 1)
 
 

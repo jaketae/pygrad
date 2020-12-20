@@ -8,9 +8,7 @@ class Exp(Function):
         return np.exp(x)
 
     def backward(self, gy):
-        x = self.inputs[0].data
-        gx = gy * np.exp(x)
-        return gx
+        return gy * np.exp(self.inputs[0])
 
 
 def exp(x):
@@ -22,9 +20,7 @@ class Square(Function):
         return x ** 2
 
     def backward(self, gy):
-        x = self.inputs[0].data
-        gx = 2 * x * gy
-        return gx
+        return 2 * gy * self.inputs[0]
 
 
 def square(x):
@@ -36,8 +32,7 @@ class Sin(Function):
         return np.sin(x)
 
     def backward(self, gy):
-        x = self.inputs[0].data
-        return gy * np.cos(x)
+        return gy * np.cos(self.inputs[0])
 
 
 def sin(x):
