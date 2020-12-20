@@ -80,3 +80,21 @@ def reshape(x, shape):
     if x.shape == shape:
         return as_variable(x)
     return Reshape(shape)(x)
+
+
+class Transpose(Function):
+    def __init__(self, axes):
+        self.axes = axes
+
+    def forward(self, x):
+        return x.transpose(self.axes)
+
+    def backward(self, gy):
+        if self.axes is None:
+            return transpose(gy)
+        inv_axes = np.argsort(self.axes)
+        return transpose(gy, inv_axes)
+
+
+def transpose(x, axes=None):
+    return Transpose(axes)(x)
