@@ -49,6 +49,8 @@ class Variable:
         self.grad = None
 
     def backward(self, retain_grad=False):
+        if self.creator is None:
+            raise ValueError("Cannot backprop on root variable")
         if self.grad is None:
             self.grad = np.ones_like(self.data)
         funcs = [self.creator]
@@ -90,7 +92,9 @@ class Variable:
 
     def __repr__(self):
         data_string = str(self.data).replace("\n", "\n" + " " * 9)
-        return f"Variable({data_string})"
+        if self.name is None:
+            return f"Variable({data_string})"
+        return f"Variable({data_string}), {self.name}"
 
 
 def as_variable(obj):
