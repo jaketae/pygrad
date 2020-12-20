@@ -29,3 +29,16 @@ class Square(Function):
 
 def square(x):
     return Square()(x)
+
+
+class Sin(Function):
+    def forward(self, x):
+        return np.sin(x)
+
+    def backward(self, gy):
+        x = self.inputs[0].data
+        return gy * np.cos(x)
+
+
+def sin(x):
+    return Sin()(x)
