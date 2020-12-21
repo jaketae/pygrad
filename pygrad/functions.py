@@ -1,7 +1,7 @@
 import numpy as np
 
-from pygrad import utils
 from pygrad.core import Function, as_variable
+from pygrad.utils import _sum_to, handle_shape
 
 
 class Exp(Function):
@@ -77,9 +77,8 @@ class Reshape(Function):
         return reshape(gy, self.x_shape)
 
 
+@handle_shape
 def reshape(x, shape):
-    if x.shape == shape:
-        return as_variable(x)
     return Reshape(shape)(x)
 
 
@@ -130,9 +129,8 @@ class BroadcastTo(Function):
         return sum_to(gy, self.x_shape)
 
 
+@handle_shape
 def broadcast_to(x, shape):
-    if x.shape == shape:
-        return as_variable(x)
     return BroadcastTo(shape)(x)
 
 
@@ -142,13 +140,12 @@ class SumTo(Function):
 
     def forward(self, x):
         self.x_shape = x.shape
-        return utils.sum_to(x)
+        return _sum_to(x, self.shape)
 
     def backward(self, gy):
         return broadcast_to(gy, self.x_shape)
 
 
+@handle_shape
 def sum_to(x, shape):
-    if x.shape == shape:
-        return as_variable(x)
     return SumTo(shape)(x)

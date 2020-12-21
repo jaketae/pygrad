@@ -2,6 +2,15 @@ def numerical_grad(f, x, eps=1e-4):
     return (f(x + eps) - f(x - eps)) / (2 * eps)
 
 
+def handle_shape(func):
+    def wrapper(x, shape):
+        if x.shape == shape:
+            return x
+        return func(x, shape)
+
+    return wrapper
+
+
 def _sum_to(x, shape):
     ndim = len(shape)
     lead = x.ndim - ndim
