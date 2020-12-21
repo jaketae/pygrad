@@ -1,5 +1,6 @@
 import numpy as np
 
+from pygrad import utils
 from pygrad.core import Function, as_variable
 
 
@@ -110,7 +111,7 @@ class Sum(Function):
         return x.sum(axis=self.axis, keepdims=self.keepdims)
 
     def backward(self, gy):
-        raise broadcast_to(gy, self.x_shape)
+        return broadcast_to(gy, self.x_shape)
 
 
 def sum(x, axis=None, keepdims=False):
@@ -126,10 +127,28 @@ class BroadcastTo(Function):
         return np.broadcast_to(x, self.shape)
 
     def backward(self, gy):
-        raise NotImplementedError
+        return sum_to(gy, self.x_shape)
 
 
 def broadcast_to(x, shape):
     if x.shape == shape:
         return as_variable(x)
     return BroadcastTo(shape)(x)
+
+
+class SumTo(Function):
+    def __init__(self, shape):
+        self.shape = shape
+
+    def forward(self, x):
+        self.x_shape = x.shape
+        return utils.sum_to(x)
+
+    def backward(self, gy):
+        return broadcast_to(gy, self.x_shape)
+
+
+def sum_to(x, shape):
+    if x.shape == shape:
+        return as_variable(x)
+    return SumTo(shape)(x)
