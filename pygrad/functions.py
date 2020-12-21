@@ -109,9 +109,27 @@ class Sum(Function):
         self.x_shape = x.shape
         return x.sum(axis=self.axis, keepdims=self.keepdims)
 
-    # def backward(self, gy):
-    #     raise NotImplementedError
+    def backward(self, gy):
+        raise broadcast_to(gy, self.x_shape)
 
 
 def sum(x, axis=None, keepdims=False):
     return Sum(axis, keepdims)(x)
+
+
+class BroadcastTo(Function):
+    def __init__(self, shape):
+        self.shape = shape
+
+    def forward(self, x):
+        self.x_shape = x.shape
+        return np.broadcast_to(x, self.shape)
+
+    def backward(self, gy):
+        raise NotImplementedError
+
+
+def broadcast_to(x, shape):
+    if x.shape == shape:
+        return as_variable(x)
+    return BroadcastTo(shape)(x)
