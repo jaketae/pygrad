@@ -97,10 +97,15 @@ class Variable:
             axes = None
         elif len(axes) == 1 and isinstance(axes[0], (tuple, list)) or axes[0] is None:
             axes = axes[0]
+        if len(axes) > self.ndim:
+            raise pygrad.exceptions.AxisError(axes, self.ndim)
         return pygrad.functions.transpose(self, axes)
 
     def sum(self, axis=None, keepdims=False):
-        return pygrad.functions.sum(self, axis, keepdims)
+        try:
+            return pygrad.functions.sum(self, axis, keepdims)
+        except np.AxisError:
+            raise pygrad.exceptions.AxisError(axis, self.ndim)
 
     def reshape(self, *shape):
         if len(shape) == 1 and isinstance(shape, (tuple, list)):
