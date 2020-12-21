@@ -2,7 +2,7 @@ def numerical_grad(f, x, eps=1e-4):
     return (f(x + eps) - f(x - eps)) / (2 * eps)
 
 
-def sum_to(x, shape):
+def _sum_to(x, shape):
     ndim = len(shape)
     lead = x.ndim - ndim
     if lead < 0:
@@ -12,4 +12,6 @@ def sum_to(x, shape):
     y = x.sum(lead_axis + axis, keepdims=True)
     if lead > 0:
         y = y.squeeze(lead_axis)
+    if y.shape != shape:
+        raise RuntimeError(f"variable cannot be summed to shape {shape}")
     return y
