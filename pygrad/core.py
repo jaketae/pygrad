@@ -31,6 +31,12 @@ def as_tuple(x):
     return x
 
 
+def as_variable(obj):
+    if isinstance(obj, Variable):
+        return obj
+    return Variable(obj)
+
+
 class Variable:
 
     __array_priority__ = 100
@@ -145,10 +151,8 @@ class Variable:
                     y().clear_grad()
 
 
-def as_variable(obj):
-    if isinstance(obj, Variable):
-        return obj
-    return Variable(obj)
+class Parameter(Variable):
+    pass
 
 
 class Function:
