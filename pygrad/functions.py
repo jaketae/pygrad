@@ -164,3 +164,42 @@ class MatMul(Function):
 
 def matmul(x, W):
     return MatMul()(x, W)
+
+
+class MeanSquaredError(Function):
+    def forward(self, x0, x1):
+        diff = x1 - x0
+        return np.average(diff ** 2)
+
+    def backward(self, gy):
+        x0, x1 = self.inputs
+        diff = x1 - x0
+        gx0 = 2 * gy * diff / len(diff)
+        gx1 = -gx0
+        return gx0, gx1
+
+
+def mean_squared_error(x0, x1):
+    return MeanSquaredError()(x0, x1)
+
+
+class Linear(Function):
+    def forward(self, x, W, b):
+        y = x.dot(W)
+        if b:
+            y += b
+        return y
+
+    def backward(self, gy):
+        x, W, b = self.inputs
+        gb = None
+        if b.data:
+            gb = sum_to(gy, b.shape)
+        gx = matmul(gy, W.T)
+        gW = matmul(x.T, gy)
+        return gx, gW, gb
+
+
+def linear(x, W, b=None):
+    return Linear()(x, W, b)
+
