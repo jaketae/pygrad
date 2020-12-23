@@ -203,3 +203,28 @@ class Linear(Function):
 def linear(x, W, b=None):
     return Linear()(x, W, b)
 
+
+class Sigmoid(Function):
+    def forward(self, x):
+        return 1 / (1 + np.exp(-x))
+
+    def backward(self, gy):
+        y = self.outputs[0]()
+        return gy * y * (1 - y)
+
+
+def sigmoid(x):
+    return Sigmoid()(x)
+
+
+class ReLU(Function):
+    def forward(self, x):
+        return x * (x > 0)
+
+    def backward(self, gy):
+        x = self.inputs[0]
+        mask = x.data > 0
+        return gy * mask
+
+def relu(x):
+    return ReLU()(x)
