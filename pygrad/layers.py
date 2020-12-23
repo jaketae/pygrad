@@ -6,14 +6,14 @@ import pygrad.functions as F
 from pygrad.core import Parameter, as_tuple
 
 
-class Module:
+class Layer:
     def __init__(self):
         self._params = set()
 
     def __setattr__(self, name, value):
-        if isinstance(value, (Parameter, Module)):
+        if isinstance(value, (Parameter, Layer)):
             self._params.add(name)
-        super(Module, self).__setattr__(name, value)
+        super(Layer, self).__setattr__(name, value)
 
     def __call__(self, *inputs):
         outputs = as_tuple(self.forward(*inputs))
@@ -22,7 +22,7 @@ class Module:
         if len(outputs) > 1:
             return outputs
         return outputs[0]
-    
+
     def __repr__(self):
         return str(self.__dict__)
 
@@ -32,7 +32,7 @@ class Module:
     def params(self):
         for param in self._params:
             obj = self.__dict__[param]
-            if isinstance(obj, Module):
+            if isinstance(obj, Layer):
                 yield from obj.params()
             yield obj
 
@@ -40,10 +40,8 @@ class Module:
         for param in self._params:
             param.clear_grad()
 
-    
 
-
-class Linear(Module):
+class Linear(Layer):
     def __init__(self, in_size, out_size, bias=True, dtype=np.float32):
         super(Linear, self).__init__()
         self.W = Parameter(np.random.randn(in_size, out_size).astype(dtype), name="W")

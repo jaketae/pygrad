@@ -1,6 +1,7 @@
 import pygrad.exceptions
 import pygrad.functions
-import pygrad.modules
+import pygrad.layers
+import pygrad.models
 import pygrad.optimizers
 from pygrad.core import Variable, no_grad, setup_variable
 
