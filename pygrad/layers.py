@@ -11,7 +11,7 @@ class Layer:
         self._params = set()
 
     def __setattr__(self, name, value):
-        if isinstance(value, Parameter):
+        if isinstance(value, (Parameter, Layer)):
             self._params.add(name)
         super(Layer, self).__setattr__(name, value)
 
@@ -28,7 +28,10 @@ class Layer:
 
     def params(self):
         for param in self._params:
-            yield self.__dict__[param]
+            obj = self.__dict__[param]
+            if isinstance(obj, Layer):
+                yield from obj.params()
+            yield obj
 
     def clear_grads(self):
         for param in self._params:
@@ -37,11 +40,12 @@ class Layer:
 
 class Linear(Layer):
     def __init__(self, in_size, out_size, bias=True, dtype=np.float32):
-        W_data = np.random.randn(in_size, out_size).astype(dtype)
-        self.W = Parameter(W_data, name="W")
-        self.b = None
+        super(Linear, self).__init__()
+        self.W = Parameter(np.random.randn(in_size, out_size).astype(dtype), name="W")
         if bias:
             self.b = Parameter(np.zeros(out_size, dtype=dtype), name="b")
+        else:
+            self.b = None
 
     def forward(self, x):
         return F.linear(x, self.W, self.b)
