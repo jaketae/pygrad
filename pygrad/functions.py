@@ -219,12 +219,35 @@ def sigmoid(x):
 
 class ReLU(Function):
     def forward(self, x):
-        return x * (x > 0)
+        y = x.copy()
+        y[y < 0] = 0
+        return y
 
     def backward(self, gy):
         x = self.inputs[0]
         mask = x.data > 0
         return gy * mask
 
+
 def relu(x):
     return ReLU()(x)
+
+
+class LeakyReLU(Function):
+    def __init__(self, slope):
+        self.slope = slope
+
+    def forward(self, x):
+        y = x.copy()
+        y[x < 0] *= self.slope
+        return y
+
+    def backward(self, gy):
+        x = self.inputs[0]
+        mask = (x.data > 0).astype(gy.dtype)
+        mask[mask <= 0] = self.slope
+        return gy * mask
+
+
+def leaky_relu(x, slope=0.2):
+    return LeakyReLU(slope)(x)
