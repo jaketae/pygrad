@@ -51,4 +51,4 @@ class AdaGrad(Optimizer):
         grad = param.grad.data
         g = self.gs[g_key]
         g += grad * grad
-        param.data -= self.lr * grad / (np.sqrt(g) + self.eps)
+        param.data -= self.lr * grad / (np.sqrt(g + self.eps))
