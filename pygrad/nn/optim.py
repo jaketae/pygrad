@@ -44,7 +44,7 @@ class AdaGrad(Optimizer):
         self.lr = lr
         self.eps = eps
 
-    def ste_one(self, param):
+    def step_one(self, param):
         g_key = id(param)
         if g_key not in self.gs:
             self.gs[g_key] = np.zeros_like(param.data)
