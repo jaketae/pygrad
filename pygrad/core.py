@@ -65,9 +65,6 @@ class Variable:
             return np.array_equal(self.data, other.data)
         return False
 
-    def __getitem__(self, key):
-        return as_variable(self.data[key])
-
     def __repr__(self):
         data_string = str(self.data).replace("\n", "\n" + " " * 9)
         if self.name is None:
@@ -160,7 +157,7 @@ class Function:
         inputs = [as_variable(x) for x in inputs]
         xs = [x.data for x in inputs]
         ys = as_tuple(self.forward(*xs))
-        outputs = [Variable(y) for y in ys]
+        outputs = [as_variable(y) for y in ys]
         if Config.enable_backprop:
             self.inputs = inputs
             self.generation = max([x.generation for x in inputs])
@@ -300,3 +297,4 @@ def setup_variable():
     Variable.__truediv__ = div
     Variable.__rtruediv__ = rdiv
     Variable.__pow__ = pow
+    Variable.__getitem__ = pygrad.functions.get_item

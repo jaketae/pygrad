@@ -251,3 +251,20 @@ class LeakyReLU(Function):
 
 def leaky_relu(x, slope=0.2):
     return LeakyReLU(slope)(x)
+
+
+class GetItem(Function):
+    def __init__(self, slice):
+        self.slice = slice
+    
+    def forward(self, x):
+        return x[self.slice]
+    
+    def backward(self, gy):
+        x = self.inputs[0]
+        gx = np.zeros_like(x.data)
+        np.add.at(gx, self.slice, gy.data)
+        return gx
+
+def get_item(x, slice):
+    return GetItem(slice)(x)
