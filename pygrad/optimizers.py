@@ -32,4 +32,3 @@ class SGD(Optimizer):
         v -= self.lr * param.grad.data
         param.data += v
         self.vs[v_key] = v
-

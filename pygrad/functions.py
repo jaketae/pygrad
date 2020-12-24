@@ -9,7 +9,7 @@ class Exp(Function):
         return np.exp(x)
 
     def backward(self, gy):
-        return gy * np.exp(self.inputs[0])
+        return gy * exp(self.inputs[0])
 
 
 def exp(x):
@@ -256,15 +256,35 @@ def leaky_relu(x, slope=0.2):
 class GetItem(Function):
     def __init__(self, slice):
         self.slice = slice
-    
+
     def forward(self, x):
         return x[self.slice]
-    
+
     def backward(self, gy):
         x = self.inputs[0]
         gx = np.zeros_like(x.data)
         np.add.at(gx, self.slice, gy.data)
         return gx
 
+
 def get_item(x, slice):
     return GetItem(slice)(x)
+
+
+class Softmax(Function):
+    def __init__(self, axis):
+        self.axis = axis
+
+    def forward(self, x):
+        y = np.exp(x - x.max(axis=self.axis, keepdims=True))
+        return y / y.sum(axis=self.axis, keepdims=True)
+
+    def backward(self, gy):
+        y = self.outputs[0]()
+        gx = y * gy
+        gx_sum = gx.sum(axis=self.axis, keepdims=True)
+        return gx - y * gx_sum
+
+
+def softmax(x, axis=-1):
+    return Softmax(axis)(x)
