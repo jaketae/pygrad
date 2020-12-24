@@ -52,3 +52,29 @@ class AdaGrad(Optimizer):
         g = self.gs[g_key]
         g += grad * grad
         param.data -= self.lr * grad / (np.sqrt(g + self.eps))
+
+
+class AdaDelta(Optimizer):
+    def __init__(self, target, rho=0.9, eps=1e-10):
+        super(AdaGrad, self).__init__(target)
+        self.gs = {}
+        self.dxhs = {}
+        self.rho = rho
+        self.eps = eps
+
+    def step_one(self, param):
+        key = id(param)
+        if key not in self.gs:
+            self.gs[key] = np.zeros_like(param.data)
+            self.dxhs[key] = np.zeros_like(param.data)
+        rho = self.rho
+        eps = self.eps
+        grad = param.grad.data
+        g = self.gs[key]
+        g *= rho
+        g += (1 - rho) * grad * grad
+        dxh = self.dxhs[key]
+        dx = np.square((dxh + eps) / (g + eps)) * grad
+        dxh *= rho
+        dxh += (1 - rho) * dx * dx
+        param.data -= dx
