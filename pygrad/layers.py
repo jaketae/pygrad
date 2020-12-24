@@ -36,10 +36,6 @@ class Layer:
                 yield from param.params()
             yield param
 
-    def clear_grads(self):
-        for param in self.params():
-            param.clear_grad()
-
 
 class Linear(Layer):
     def __init__(self, in_size, out_size, bias=True, dtype=np.float32):

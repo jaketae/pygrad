@@ -13,6 +13,10 @@ class Optimizer:
     def step_one(self, param):
         raise NotImplementedError
 
+    def clear_grads(self):
+        for param in self.targett.params():
+            param.clear_grad()
+
     def add_hook(self, hook):
         self.hooks.append(hook)
 
