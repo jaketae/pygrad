@@ -21,6 +21,15 @@ def handle_shape(func):
     return wrapper
 
 
+def set_module(module):
+    def decorator(func):
+        if module is not None:
+            func.__module__ = module
+        return func
+
+    return decorator
+
+
 def _sum_to(x, shape):
     ndim = len(shape)
     lead = x.ndim - ndim
