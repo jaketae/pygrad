@@ -4,3 +4,7 @@ class Dataset:
 
     def __len__(self, index):
         pass
+
+
+class DataLoader:
+    pass
