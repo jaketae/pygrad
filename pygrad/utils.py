@@ -1,3 +1,12 @@
+import os
+import subprocess
+import warnings
+
+import matplotlib.pyplot as plt
+
+from pygrad.core import Parameter
+
+
 def numerical_grad(f, x, eps=1e-4):
     return (f(x + eps) - f(x - eps)) / (2 * eps)
 
@@ -24,3 +33,78 @@ def _sum_to(x, shape):
     if y.shape != shape:
         raise RuntimeError(f"variable cannot be summed to shape {shape}")
     return y
+
+
+def get_dot_graph(model, dpi):
+    nodes = {}
+    edges = {}
+    funcs = [output().creator for output in model.outputs]
+    seen_set = set(funcs)
+    while funcs:
+        f = funcs.pop()
+        node, edge = make_dot(f)
+        nodes.update(node)
+        edges.update(edge)
+        for input_ in f.inputs:
+            creator = input_.creator
+            if creator and creator not in seen_set:
+                seen_set.add(creator)
+                funcs.append(creator)
+    txt = ""
+    for node_id, properties in nodes.items():
+        txt += (
+            f'{node_id} [label="{properties[0]} | {{ in | out }} | '
+            f'{{ {properties[1]} | {properties[2]} }}"]\n'
+        )
+    for root, child in edges.items():
+        txt += f"{root} -> {child}\n"
+        if root not in nodes:
+            txt += f'{root} [label="Variable"]\n'
+    return (
+        f'digraph g \n{{edge [fontname = "helvetica"];'
+        f'graph [fontname = "helvetica", dpi={dpi}];'
+        f'node [fontname = "helvetica", shape=Mrecord];\n{txt}}}'
+    )
+
+
+def make_dot(f):
+    f_inputs = [input_ for input_ in f.inputs if not isinstance(input_, Parameter)]
+    input_shapes = [input_.shape for input_ in f_inputs]
+    output_shapes = [output().shape for output in f.outputs]
+    name = f.__class__.__name__
+    id_ = id(f)
+    node = {id_: [name, input_shapes, output_shapes]}
+    creator_ids = [id(input_.creator) for input_ in f_inputs]
+    edge = {creator_id: id_ for creator_id in creator_ids}
+    return node, edge
+
+
+def plot_model(model, to_file="graph.png", dpi=300):
+    graph = get_dot_graph(model, dpi)
+    tmp_dir = os.path.join(os.path.expanduser("~"), ".pygrad")
+    if not os.path.exists(tmp_dir):
+        os.mkdir(tmp_dir)
+    graph_file = os.path.join(tmp_dir, "tmp_graph.dot")
+    with open(graph_file, "w+") as f:
+        f.write(graph)
+    extension = os.path.splitext(to_file)[-1][1:]
+    out_path = os.path.join(os.getcwd(), to_file)
+    cmd = f"dot {graph_file} -T {extension} -o {out_path}"
+    try:
+        subprocess.run(cmd, shell=True, check=True)
+    except subprocess.CalledProcessError:
+        raise RuntimeError(
+            "please install graphviz (https://graphviz.gitlab.io/download/)"
+        )
+    plt.axis("off")
+    try:
+        from IPython import display
+
+        display.set_matplotlib_formats("retina")
+        return diplay.Image(filename=to_file)
+    except NameError:
+        import matplotlib.image as mpimg
+
+        img = mpimg.imread(to_file)
+        plt.imshow(img)
+        plt.show()

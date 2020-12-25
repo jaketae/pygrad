@@ -3,6 +3,7 @@ import weakref
 import numpy as np
 
 import pygrad.functions as F
+from pygrad import utils
 from pygrad.core import Parameter, as_tuple
 
 
@@ -34,7 +35,21 @@ class Module:
             param = self.__dict__[name]
             if isinstance(param, Module):
                 yield from param.params()
-            yield param
+            else:
+                yield param
+
+    # def modules(self):
+    #     for name in self._params:
+    #         param = self.__dict__[name]
+    #         if isinstance(param, Module):
+    #             yield param
+
+    def plot(self):
+        try:
+            self.inputs
+        except AttributeError:
+            raise RuntimeError("need to run a forward pass first")
+        utils.plot_model(self)
 
 
 class Linear(Module):
