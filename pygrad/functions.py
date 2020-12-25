@@ -288,3 +288,35 @@ class Softmax(Function):
 
 def softmax(x, axis=-1):
     return Softmax(axis)(x)
+
+
+class Log(Function):
+    def forward(self, x):
+        return np.log(x)
+
+    def backward(self, gy):
+        x = self.inputs[0]
+        return gy / x
+
+
+def log(x):
+    return Log()(x)
+
+
+class LogSoftMax(Function):
+    def __init__(self, axis):
+        self.axis = axis
+
+    def forward(self, x):
+        m = x.max(axis=self.axis, keepdims=True)
+        y = np.exp(x - m).sum(axis=self.axis, keepdims=True)
+        return x - np.add(m, np.log(y))
+
+    def backward(self, gy):
+        y = self.outputs[0]()
+        return gy - exp(y) * gy.sum(axis=self.axis, keepdims=True)
+
+
+def log_softmax(x, axis=-1):
+    return LogSoftMax(axis)(x)
+
