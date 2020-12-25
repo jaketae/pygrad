@@ -1,5 +1,6 @@
 import os
 import subprocess
+import sys
 import warnings
 
 import matplotlib.pyplot as plt
@@ -35,7 +36,7 @@ def _sum_to(x, shape):
     return y
 
 
-def get_dot_graph(model, dpi):
+def write_dot_graph(model, dpi):
     nodes = {}
     edges = {}
     funcs = [output().creator for output in model.outputs]
@@ -80,22 +81,24 @@ def make_dot(f):
 
 
 def plot_model(model, to_file="graph.png", dpi=300):
-    graph = get_dot_graph(model, dpi)
+    graph = write_dot_graph(model, dpi)
     tmp_dir = os.path.join(os.path.expanduser("~"), ".pygrad")
     if not os.path.exists(tmp_dir):
         os.mkdir(tmp_dir)
-    graph_file = os.path.join(tmp_dir, "tmp_graph.dot")
+    graph_file = os.path.join(tmp_dir, "graph.dot")
     with open(graph_file, "w+") as f:
         f.write(graph)
     extension = os.path.splitext(to_file)[-1][1:]
-    out_path = os.path.join(os.getcwd(), to_file)
-    cmd = f"dot {graph_file} -T {extension} -o {out_path}"
+    cmd = f"dot {graph_file} -T {extension} -o {to_file}"
     try:
         subprocess.run(cmd, shell=True, check=True)
     except subprocess.CalledProcessError:
-        raise RuntimeError(
-            "please install graphviz (https://graphviz.gitlab.io/download/)"
-        )
+        message = "please install graphviz (https://graphviz.gitlab.io/download/)"
+        if "IPython.core.magics.namespace" in sys.modules:
+            print(message)
+            return
+        else:
+            raise ImportError(message)
     plt.axis("off")
     try:
         from IPython import display

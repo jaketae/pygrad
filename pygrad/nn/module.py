@@ -38,18 +38,12 @@ class Module:
             else:
                 yield param
 
-    # def modules(self):
-    #     for name in self._params:
-    #         param = self.__dict__[name]
-    #         if isinstance(param, Module):
-    #             yield param
-
-    def plot(self):
+    def plot(self, to_file="graph.png", dpi=300):
         try:
             self.inputs
         except AttributeError:
             raise RuntimeError("need to run a forward pass first")
-        utils.plot_model(self)
+        utils.plot_model(self, to_file, dpi)
 
 
 class Linear(Module):
