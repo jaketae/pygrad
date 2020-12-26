@@ -325,6 +325,16 @@ class SoftmaxCrossEntropy(Function):
         self.axis = axis
 
     def forward(self, x, t):
+        if x.ndim != 2:
+            raise ValueError(
+                f"expected `x` predicted values to be 2D, "
+                f"but received {x.ndim}D variable instead"
+            )
+        if t.ndim != 1:
+            raise ValueError(
+                f"expected `t` label to be 1D, "
+                f"but received {t.ndim}D variable instead"
+            )
         log_z = _log_sum_exp(x, self.axis)
         log_p = x - log_z
         log_p = log_p[:, t.ravel()]
