@@ -45,28 +45,31 @@ class Module:
             raise RuntimeError("need to run a forward pass first")
         utils.plot_model(self, to_file, dpi)
 
-    def weights_dict(self):
+    def weight_dict(self):
         weights = {}
         for name in self._params:
             param = self.__dict__[name]
             if isinstance(param, Module):
-                weights[name] = param.state_dict()
+                weights[name] = param.weight_dict()
             else:
                 weights[name] = param.data
         return weights
 
-    def load(self, path):
-        weights = np.load(path, allow_pickle=True).item()
+    def load_weight_dict(self, weights):
         for name, param in weights.items():
             p = self.__dict__[name]
             if isinstance(p, Module):
                 assert isinstance(param, dict)
-                p.load_state_dict(param)
+                p.load_weight_dict(param)
             else:
                 p.data = param
 
+    def load(self, path):
+        weights = np.load(path, allow_pickle=True).item()
+        self.load_weight_dict(weights)
+
     def save(self, path):
-        weights = self.weights_dict()
+        weights = self.weight_dict()
         np.save(path, weights)
 
 
