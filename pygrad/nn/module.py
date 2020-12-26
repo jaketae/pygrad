@@ -39,18 +39,15 @@ class Module:
             else:
                 yield param
 
-    def toggle_train(self, is_train):
+    def train(self, is_train=True):
         self.is_train = is_train
         for name in self._params:
             param = self.__dict__[name]
             if isinstance(param, Module):
-                param.toggle_train(is_train)
+                param.train(is_train)
 
     def eval(self):
-        self.toggle_train(False)
-
-    def train(self):
-        self.toggle_train(True)
+        self.train(False)
 
     def plot(self, to_file="graph.png", dpi=300):
         try:
@@ -70,13 +67,13 @@ class Module:
         return weights
 
     def load_weight_dict(self, weights):
-        for name, param in weights.items():
-            p = self.__dict__[name]
-            if isinstance(p, Module):
-                assert isinstance(param, dict)
-                p.load_weight_dict(param)
+        for name, weight in weights.items():
+            param = self.__dict__[name]
+            if isinstance(param, Module):
+                assert isinstance(weight, dict)
+                param.load_weight_dict(weight)
             else:
-                p.data = param
+                param.data = weight
 
     def load(self, path):
         weights = np.load(path, allow_pickle=True).item()
