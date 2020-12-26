@@ -350,3 +350,13 @@ class SoftmaxCrossEntropy(Function):
 
 def softmax_cross_entropy(x, t, axis=-1):
     return SoftmaxCrossEntropy(axis)(x, t)
+
+
+def dropout(x, dropout=0.5):
+    x = as_variable(x)
+    train = True
+    if train:
+        mask = np.random.randn(*x.shape) > dropout
+        scale = np.array(1 - dropout).astype(x.dtype)
+        return x * mask / scale
+    return x

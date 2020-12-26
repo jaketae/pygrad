@@ -10,6 +10,7 @@ from pygrad.core import Parameter, as_tuple
 class Module:
     def __init__(self):
         self._params = set()
+        self.is_train = True
 
     def __setattr__(self, name, value):
         if isinstance(value, (Parameter, Module)):
@@ -37,6 +38,19 @@ class Module:
                 yield from param.params()
             else:
                 yield param
+
+    def toggle_train(is_train):
+        self.is_train = is_train
+        for name in self._params:
+            param = self.__dict__[name]
+            if isinstance(param, Module):
+                param.toggle_mode(is_train)
+
+    def eval(self):
+        self.toggle_train(False)
+
+    def train(self):
+        self.toggle_train(True)
 
     def plot(self, to_file="graph.png", dpi=300):
         try:
