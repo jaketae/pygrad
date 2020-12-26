@@ -325,6 +325,24 @@ class SoftmaxCrossEntropy(Function):
         self.axis = axis
 
     def forward(self, x, t):
+        print("What?")
+        if x.ndim != 2:
+            raise ValueError(
+                f"expected `x` predicted values to be 2D, "
+                f"but received {x.ndim}D variable instead"
+            )
+        if t.ndim != 1:
+            raise ValueError(
+                f"expected `t` label to be 1D, "
+                f"but received {t.ndim}D variable instead"
+            )
+        num_labels = len(t)
+        num_samples = x.shape[0]
+        if num_labels != num_samples:
+            raise ValueError(
+                f"expected `x` and `t` to be of same length, "
+                f"but received {num_samples} samples, {num_labels} labels"
+            )
         log_z = _log_sum_exp(x, self.axis)
         log_p = x - log_z
         log_p = log_p[:, t.ravel()]
@@ -339,22 +357,6 @@ class SoftmaxCrossEntropy(Function):
 
 
 def softmax_cross_entropy(x, t, axis=-1):
-    if x.ndim != 2:
-        raise ValueError(
-            f"expected `x` predicted values to be 2D, "
-            f"but received {x.ndim}D variable instead"
-        )
-    if t.ndim != 1:
-        raise ValueError(
-            f"expected `t` label to be 1D, " f"but received {t.ndim}D variable instead"
-        )
-    num_labels = len(t)
-    num_samples = x.shape[0]
-    if num_labels != num_samples:
-        raise ValueError(
-            f"expected `x` and `t` to be of same length, "
-            f"but received {num_samples} samples, {num_labels} labels"
-        )
     return SoftmaxCrossEntropy(axis)(x, t)
 
 
@@ -365,6 +367,8 @@ class Dropout(Function):
 
     def forward(self, x):
         dropout = self.dropout
+        if not (0 <= dropout <= 1):
+            raise ValueError("`dropout` must be between 0 and 1")
         if self.train:
             self.mask = (np.random.randn(*x.shape) > dropout).astype(x.dtype)
             self.scale = np.array(1 - dropout).astype(x.dtype)
