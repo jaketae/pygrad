@@ -45,6 +45,25 @@ class Module:
             raise RuntimeError("need to run a forward pass first")
         utils.plot_model(self, to_file, dpi)
 
+    def state_dict(self):
+        state = {}
+        for name in self._params:
+            param = self.__dict__[name]
+            if isinstance(param, Module):
+                state[name] = param.state_dict()
+            else:
+                state[name] = param.data
+        return state
+
+    def load_state_dict(self, state):
+        for name, param in state.items():
+            p = self.__dict__[name]
+            if isinstance(p, Module):
+                assert isinstance(param, dict)
+                p.load_state_dict(param)
+            else:
+                p.data = param
+
 
 class Linear(Module):
     def __init__(self, in_size, out_size, bias=True, dtype=np.float32):
