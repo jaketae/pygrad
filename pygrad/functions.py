@@ -335,6 +335,13 @@ class SoftmaxCrossEntropy(Function):
                 f"expected `t` label to be 1D, "
                 f"but received {t.ndim}D variable instead"
             )
+        num_labels = len(t)
+        num_samples = x.shape[0]
+        if num_labels != num_samples:
+            raise ValueError(
+                f"expected `x` and `t` to be of same length, "
+                f"but received {num_samples} samples, {num_labels} labels"
+            )
         log_z = _log_sum_exp(x, self.axis)
         log_p = x - log_z
         log_p = log_p[:, t.ravel()]
@@ -366,7 +373,6 @@ class Dropout(Function):
         return x
 
     def backward(self, gy):
-        dropout = self.dropout
         if self.train:
             return gy * self.mask / self.scale
         return gy
