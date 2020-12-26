@@ -193,7 +193,7 @@ class Linear(Function):
     def backward(self, gy):
         x, W, b = self.inputs
         gb = None
-        if b.data:
+        if b.data is not None:
             gb = sum_to(gy, b.shape)
         gx = matmul(gy, W.T)
         gW = matmul(x.T, gy)
@@ -352,11 +352,26 @@ def softmax_cross_entropy(x, t, axis=-1):
     return SoftmaxCrossEntropy(axis)(x, t)
 
 
-def dropout(x, dropout=0.5):
-    x = as_variable(x)
-    train = True
-    if train:
-        mask = np.random.randn(*x.shape) > dropout
-        scale = np.array(1 - dropout).astype(x.dtype)
-        return x * mask / scale
-    return x
+class Dropout(Function):
+    def __init__(self, dropout, train):
+        self.train = train
+        self.dropout = dropout.data
+
+    def forward(self, x):
+        dropout = self.dropout
+        if self.train:
+            self.mask = (np.random.randn(*x.shape) > dropout).astype(x.dtype)
+            self.scale = np.array(1 - dropout).astype(x.dtype)
+            return x * self.mask / self.scale
+        return x
+
+    def backward(self, gy):
+        dropout = self.dropout
+        if self.train:
+            return gy * self.mask / self.scale
+        return gy
+
+
+def dropout(x, dropout, train):
+    return Dropout(dropout, train)(x)
+

@@ -39,12 +39,12 @@ class Module:
             else:
                 yield param
 
-    def toggle_train(is_train):
+    def toggle_train(self, is_train):
         self.is_train = is_train
         for name in self._params:
             param = self.__dict__[name]
             if isinstance(param, Module):
-                param.toggle_mode(is_train)
+                param.toggle_train(is_train)
 
     def eval(self):
         self.toggle_train(False)
@@ -101,9 +101,9 @@ class Linear(Module):
 
 
 class Dropout(Module):
-    def __init__(self, dropout):
+    def __init__(self, dropout=0.5):
         super(Dropout, self).__init__()
-        self.dropout = dropout
+        self.dropout = Parameter(dropout)
 
     def forward(self, x):
         return F.dropout(x, self.dropout, self.is_train)
