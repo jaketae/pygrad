@@ -1,3 +1,4 @@
+import pygrad.data
 import pygrad.exceptions
 import pygrad.functions
 import pygrad.nn
