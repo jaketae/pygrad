@@ -4,6 +4,7 @@ import sys
 import warnings
 
 import matplotlib.pyplot as plt
+import numpy as np
 
 from pygrad.core import Parameter
 
@@ -43,6 +44,12 @@ def _sum_to(x, shape):
     if y.shape != shape:
         raise RuntimeError(f"variable cannot be summed to shape {shape}")
     return y
+
+
+def _log_sum_exp(x, axis):
+    m = x.max(axis=axis, keepdims=True)
+    y = np.exp(x - m).sum(axis=axis, keepdims=True)
+    return np.add(m, np.log(y))
 
 
 def write_dot_graph(model, dpi):

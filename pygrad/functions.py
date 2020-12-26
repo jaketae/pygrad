@@ -1,7 +1,7 @@
 import numpy as np
 
 from pygrad.core import Function, as_variable
-from pygrad.utils import _sum_to, handle_shape
+from pygrad.utils import _log_sum_exp, _sum_to, handle_shape
 
 
 class Exp(Function):
@@ -308,9 +308,8 @@ class LogSoftMax(Function):
         self.axis = axis
 
     def forward(self, x):
-        m = x.max(axis=self.axis, keepdims=True)
-        y = np.exp(x - m).sum(axis=self.axis, keepdims=True)
-        return x - np.add(m, np.log(y))
+        log_z = _log_sum_exp(x, self.axis)
+        return x - log_z
 
     def backward(self, gy):
         y = self.outputs[0]()
@@ -320,3 +319,24 @@ class LogSoftMax(Function):
 def log_softmax(x, axis=-1):
     return LogSoftMax(axis)(x)
 
+
+class SoftmaxCrossEntropy(Function):
+    def __init__(self, axis):
+        self.axis = axis
+
+    def forward(self, x, t):
+        log_z = _log_sum_exp(x, self.axis)
+        log_p = x - log_z
+        log_p = log_p[:, t.ravel()]
+        return -np.average(log_p)
+
+    def backward(self, gy):
+        x, t = self.inputs
+        batch_size, num_class = x.shape
+        y = softmax(x)
+        t_onehot = np.eye(num_class, dtype=t.dtype)[t.data]
+        return (y - t_onehot) * gy / batch_size
+
+
+def softmax_cross_entropy(x, t, axis=-1):
+    return SoftmaxCrossEntropy(axis)(x, t)
