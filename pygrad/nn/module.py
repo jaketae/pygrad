@@ -98,3 +98,12 @@ class Linear(Module):
 
     def forward(self, x):
         return F.linear(x, self.W, self.b)
+
+
+class Dropout(Module):
+    def __init__(self, dropout):
+        super(Dropout, self).__init__()
+        self.dropout = dropout
+
+    def forward(self, x):
+        return F.dropout(x, self.dropout, self.is_train)
