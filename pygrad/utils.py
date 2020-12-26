@@ -96,7 +96,17 @@ def make_dot(f):
     return node, edge
 
 
+def _check_graphviz():
+    try:
+        subprocess.run("dot -V", shell=True, check=True)
+    except subprocess.CalledProcessError:
+        raise ImportError(
+            "please install graphviz (https://graphviz.gitlab.io/download/)"
+        )
+
+
 def plot_model(model, to_file="graph.png", dpi=300):
+    _check_graphviz()
     graph = write_dot_graph(model, dpi)
     tmp_dir = os.path.join(os.path.expanduser("~"), ".pygrad")
     if not os.path.exists(tmp_dir):
@@ -105,16 +115,12 @@ def plot_model(model, to_file="graph.png", dpi=300):
     with open(graph_file, "w+") as f:
         f.write(graph)
     extension = os.path.splitext(to_file)[-1][1:]
-    cmd = f"dot {graph_file} -T {extension} -o {to_file}"
+    save_path = os.path.join(os.getcwd(), to_file)
+    cmd = f"dot {graph_file} -T {extension} -o {save_path}"
     try:
         subprocess.run(cmd, shell=True, check=True)
     except subprocess.CalledProcessError:
-        message = "please install graphviz (https://graphviz.gitlab.io/download/)"
-        if "IPython.core.magics.namespace" in sys.modules:
-            print(message)
-            return
-        else:
-            raise ImportError(message)
+        raise FileNotFoundError(f"no such file or directory {save_path}")
     plt.axis("off")
     try:
         from IPython import display
