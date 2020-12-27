@@ -85,11 +85,11 @@ class Module:
 
 
 class Linear(Module):
-    def __init__(self, in_size, out_size, bias=True, dtype=np.float32):
+    def __init__(self, in_size, out_size, bias=True):
         super(Linear, self).__init__()
-        self.W = Parameter(np.random.randn(in_size, out_size).astype(dtype), name="W")
+        self.W = Parameter(np.random.randn(in_size, out_size), name="W")
         if bias:
-            self.b = Parameter(np.zeros(out_size, dtype=dtype), name="b")
+            self.b = Parameter(np.zeros(out_size), name="b")
         else:
             self.b = None
 
