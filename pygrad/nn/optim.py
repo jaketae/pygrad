@@ -17,7 +17,7 @@ class Optimizer:
         raise NotImplementedError
 
     def clear_grads(self):
-        for param in self.targett.params():
+        for param in self.target.params():
             param.clear_grad()
 
     def add_hook(self, hook):
@@ -59,7 +59,7 @@ class AdaGrad(Optimizer):
 
 class AdaDelta(Optimizer):
     def __init__(self, target, rho=0.9, eps=1e-10):
-        super(AdaGrad, self).__init__(target)
+        super(AdaDelta, self).__init__(target)
         self.gs = {}
         self.dxhs = {}
         self.rho = rho
