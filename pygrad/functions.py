@@ -244,7 +244,7 @@ class LeakyReLU(Function):
 
     def backward(self, gy):
         x = self.inputs[0]
-        mask = (x.data > 0).astype(gy.dtype)
+        mask = x.data > 0
         mask[mask <= 0] = self.slope
         return gy * mask
 
@@ -325,7 +325,6 @@ class SoftmaxCrossEntropy(Function):
         self.axis = axis
 
     def forward(self, x, t):
-        print("What?")
         if x.ndim != 2:
             raise ValueError(
                 f"expected `x` predicted values to be 2D, "
@@ -370,8 +369,8 @@ class Dropout(Function):
         if not (0 <= dropout <= 1):
             raise ValueError("`dropout` must be between 0 and 1")
         if self.train:
-            self.mask = (np.random.randn(*x.shape) > dropout).astype(x.dtype)
-            self.scale = np.array(1 - dropout).astype(x.dtype)
+            self.mask = np.random.randn(*x.shape) > dropout
+            self.scale = np.array(1 - dropout)
             return x * self.mask / self.scale
         return x
 
