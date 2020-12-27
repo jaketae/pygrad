@@ -85,6 +85,7 @@ class DataLoader:
         i = self.iter
         if i == self.max_iter:
             self.reset()
+            raise StopIteration
         batch_size = self.batch_size
         batch_index = self.index[i * batch_size : (i + 1) * batch_size]
         batch = self.dataset[batch_index]
