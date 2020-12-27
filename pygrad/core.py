@@ -46,7 +46,7 @@ class Variable:
             data = data.data
         self.data = np.asarray(data)
         data_dtype = self.data.dtype
-        if not np.issubdtype(data_dtype, np.number):
+        if not np.can_cast(data_dtype, np.number):
             raise TypeError(
                 f"invalid data type '{data_dtype.type.__name__}' for `data`"
             )
