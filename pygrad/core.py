@@ -1,5 +1,6 @@
 import contextlib
 import heapq
+import warnings
 import weakref
 
 import numpy as np
@@ -125,9 +126,9 @@ class Variable:
 
     def backward(self, retain_grad=False, create_graph=False):
         if self.creator is None:
-            raise RuntimeError("backprop on root variable")
-        if np.ndim(self.data) != 0:
-            raise RuntimeError("grad can be implicitly created only for scalar outputs")
+            raise RuntimeError("backward pass on a root variable")
+        if self.data.size != 1:
+            warnings.warn("attempting backward pass on a non-scalar variable")
         if self.grad is None:
             self.grad = Variable(np.ones_like(self.data))
         funcs = [self.creator]
