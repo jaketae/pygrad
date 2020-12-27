@@ -351,7 +351,7 @@ class SoftmaxCrossEntropy(Function):
         x, t = self.inputs
         batch_size, num_class = x.shape
         y = softmax(x)
-        t_onehot = np.eye(num_class, dtype=t.dtype)[t.data]
+        t_onehot = np.eye(num_class)[t.data]
         return (y - t_onehot) * gy / batch_size
 
 
