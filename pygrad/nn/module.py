@@ -70,9 +70,16 @@ class Module:
         for name, weight in weights.items():
             param = self.__dict__[name]
             if isinstance(param, Module):
-                assert isinstance(weight, dict)
+                if not isinstance(weight, dict):
+                    raise KeyError(
+                        "cannot load model due to missing or mismatching keys"
+                    )
                 param.load_weight_dict(weight)
             else:
+                if param.data.shape != weight.shape:
+                    raise KeyError(
+                        "cannot load model due to missing or mismatching keys"
+                    )
                 param.data = weight
 
     def load(self, path):
