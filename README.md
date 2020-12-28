@@ -95,6 +95,7 @@ class NeuralNet(nn.Module):
     def __init__(
         self, num_input, num_hidden, num_class, dropout
     ):
+        super(NeuralNet, self).__init__()
         self.fc1 = nn.Linear(num_input, num_hidden)
         self.fc2 = nn.Linear(num_hidden, num_class)
         self.dropout = nn.Dropout(dropout)
@@ -107,7 +108,7 @@ class NeuralNet(nn.Module):
         return x
 ```
 
-`pygrad.nn` includes layers and the `Module` class through which neural networks can be initialized. Also noteworthy is `pygrad.functions`, which includes activation functions, trigonometric functions, as well as a host of other basic operations such as reshape and transpose. 
+`pygrad.nn` includes layers and the `Module` class through which neural networks can be initialized. Also noteworthy is `pygrad.functions`, which includes activation functions, trigonometric functions, as well as a host of other basic functions operations, such as reshape and transpose. 
 
 ### DataLoader Class
 
@@ -157,10 +158,22 @@ for data, labels in train_loader:
 
 The optimizer will update the model's weights according to the gradient values of each parameter. 
 
+### Model Visualization
+
+PyGrad also provides useful model visualization using [Graphviz](https://graphviz.org/doc/info/lang.html). After a forward pass, PyGrad can traverse the computation graph to draw a summary of network's structure, as well as the shape of the input and output for each layer.
+
+```
+model.plot()
+```
+
+In this instance, calling `plot()` on model yields the following image. 
+
+<img src="./assets/model_plot.png">
+
 ## Credits
 
 PyGrad is heavily based upon [DeZero](https://github.com/oreilly-japan/deep-learning-from-scratch-3/tree/master/dezero), an educational library introduced in [Deep Learning from Scratch 3](https://koki0702.github.io/dezero-book/en/index.html). Much of PyGrad's initial code base was adapted from DeZero. The design language of PyGrad's neural network API was inspired by and borrowed from PyTorch. [Chainer](https://chainer.org) is also worthy of mention as well, as DeZero itself also adapted many features from Chainer. Last but not least, PyGrad would not have been made possible without NumPy. Our acknowledgement goes to all the developers who put their time and effort into developing the aforementioned libraries. 
 
 ## License
 
-Released under the [MIT License](LICENSE.md).
+Released under the [MIT License](https://github.com/jaketae/pygrad/blob/master/LICENSE).
