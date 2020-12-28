@@ -1,7 +1,6 @@
 import warnings
 
 import numpy as np
-from sklearn import datasets as skds
 
 
 def _check_ratio(ratio):
@@ -59,14 +58,6 @@ class Subset:
 
     def __len__(self):
         return len(self.indices)
-
-
-class MoonDataset(Dataset):
-    def __init__(self, num_samples, noise=0.1, *args, **kwargs):
-        super(MoonDataset, self).__init__(*args, **kwargs)
-        X, y = skds.make_moons(num_samples, noise=noise, shuffle=True)
-        self.data = X
-        self.label = y
 
 
 class DataLoader:
