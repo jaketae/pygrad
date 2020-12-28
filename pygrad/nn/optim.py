@@ -65,10 +65,12 @@ class AdaGrad(Optimizer):
 
 
 class AdaDelta(Optimizer):
-    def __init__(self, params, rho=0.95, eps=1e-6):
+    def __init__(self, params, lr=1.0, rho=0.95, eps=1e-6):
+        _check_lr(lr)
         super(AdaDelta, self).__init__(params)
         self.gs = {}
         self.dxhs = {}
+        self.lr = lr
         self.rho = rho
         self.eps = eps
 
@@ -87,4 +89,4 @@ class AdaDelta(Optimizer):
         dx = np.sqrt((dxh + eps) / (g + eps)) * grad
         dxh *= rho
         dxh += (1 - rho) * dx * dx
-        param.data -= dx
+        param.data -= self.lr * dx
