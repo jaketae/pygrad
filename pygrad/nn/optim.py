@@ -2,22 +2,21 @@ import numpy as np
 
 
 class Optimizer:
-    def __init__(self, target):
+    def __init__(self, params):
         self.hooks = []
-        self.target = target
+        self.params = tuple(params)
 
     def step(self):
-        params = [p for p in self.target.params() if p.grad]
         for hook in self.hooks:
             hook(params)
-        for param in params:
+        for param in self.params:
             self.step_one(param)
 
     def step_one(self, param):
         raise NotImplementedError
 
-    def clear_grads(self):
-        for param in self.target.params():
+    def zero_grad(self):
+        for param in self.params:
             param.clear_grad()
 
     def add_hook(self, hook):
@@ -25,8 +24,8 @@ class Optimizer:
 
 
 class SGD(Optimizer):
-    def __init__(self, target, lr=1e-2, momentum=0.9):
-        super(SGD, self).__init__(target)
+    def __init__(self, params, lr=1e-2, momentum=0.9):
+        super(SGD, self).__init__(params)
         self.vs = {}
         self.lr = lr
         self.momentum = momentum
@@ -35,14 +34,15 @@ class SGD(Optimizer):
         v_key = id(param)
         if v_key not in self.vs:
             self.vs[v_key] = np.zeros_like(param.data)
-        v = self.momentum * self.vs[v_key]
+        v = self.vs[v_key]
+        v *= self.momentum
         v -= self.lr * param.grad.data
         param.data += v
 
 
 class AdaGrad(Optimizer):
-    def __init__(self, target, lr=1e-2, eps=1e-10):
-        super(AdaGrad, self).__init__(target)
+    def __init__(self, params, lr=1e-2, eps=1e-10):
+        super(AdaGrad, self).__init__(params)
         self.gs = {}
         self.lr = lr
         self.eps = eps
@@ -58,8 +58,8 @@ class AdaGrad(Optimizer):
 
 
 class AdaDelta(Optimizer):
-    def __init__(self, target, rho=0.9, eps=1e-10):
-        super(AdaDelta, self).__init__(target)
+    def __init__(self, params, rho=0.95, eps=1e-6):
+        super(AdaDelta, self).__init__(params)
         self.gs = {}
         self.dxhs = {}
         self.rho = rho
