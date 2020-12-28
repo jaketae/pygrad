@@ -14,9 +14,10 @@ class Optimizer:
         self.params = tuple(params)
 
     def step(self):
+        params = [p for p in self.params if p.grad is not None]
         for hook in self.hooks:
             hook(params)
-        for param in self.params:
+        for param in params:
             self.step_one(param)
 
     def step_one(self, param):
