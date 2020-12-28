@@ -112,7 +112,7 @@ class Adam(Optimizer):
 
     @property
     def alpha(self):
-        demon = 1.0 - math.pow(self.b1, self.t)
+        denom = 1.0 - math.pow(self.b1, self.t)
         numer = 1.0 - math.pow(self.b2, self.t)
         return self.lr * math.sqrt(numer) / denom
 
@@ -127,6 +127,6 @@ class Adam(Optimizer):
         m = self.ms[key]
         v = self.vs[key]
         m += (1 - b1) * (grad - m)
-        v += (1 - beta2) * (grad * grad - v)
+        v += (1 - b2) * (grad * grad - v)
         param.data -= self.alpha * m / (np.sqrt(v) + self.eps)
 
