@@ -168,7 +168,16 @@ model.plot()
 
 In this instance, calling `plot()` on the model yields the following image. 
 
-<img src="./assets/model_plot.png" width="250">
+<div align="center">
+    <img src="./assets/model_plot.png" width="250" alt="model_plot">
+</div>
+
+
+
+<p align="center">
+</p>
+
+
 
 ## Credits
 
