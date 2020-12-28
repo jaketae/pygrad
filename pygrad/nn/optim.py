@@ -1,3 +1,5 @@
+import math
+
 import numpy as np
 
 
@@ -90,3 +92,41 @@ class AdaDelta(Optimizer):
         dxh *= rho
         dxh += (1 - rho) * dx * dx
         param.data -= self.lr * dx
+
+
+class Adam(Optimizer):
+    def __init__(self, params, lr=1e-3, beta_1=0.9, beta_2=0.999, eps=1e-7):
+        _check_lr(lr)
+        super(Adam, self).__init__(params)
+        self.lr = lr
+        self.b1 = beta_1
+        self.b2 = beta_2
+        self.eps = eps
+        self.t = 0
+        self.ms = {}
+        self.vs = {}
+
+    def step(self, *args, **kwargs):
+        self.t += 1
+        super(Adam, self).step(*args, **kwargs)
+
+    @property
+    def alpha(self):
+        demon = 1.0 - math.pow(self.b1, self.t)
+        numer = 1.0 - math.pow(self.b2, self.t)
+        return self.lr * math.sqrt(numer) / denom
+
+    def step_one(self, param):
+        key = id(param)
+        if key not in self.ms:
+            self.ms[key] = np.zeros_like(param.data)
+            self.vs[key] = np.zeros_like(param.data)
+        b1 = self.b1
+        b2 = self.b2
+        grad = param.grad.data
+        m = self.ms[key]
+        v = self.vs[key]
+        m += (1 - b1) * (grad - m)
+        v += (1 - beta2) * (grad * grad - v)
+        param.data -= self.alpha * m / (np.sqrt(v) + self.eps)
+
