@@ -166,9 +166,9 @@ PyGrad also provides useful model visualization using [Graphviz](https://graphvi
 model.plot()
 ```
 
-In this instance, calling `plot()` on model yields the following image. 
+In this instance, calling `plot()` on the model yields the following image. 
 
-<img src="./assets/model_plot.png">
+<img src="./assets/model_plot.png" style="width:30%">
 
 ## Credits
 
