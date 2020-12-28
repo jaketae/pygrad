@@ -1,6 +1,11 @@
 import numpy as np
 
 
+def _check_lr(lr):
+    if 0 > lr:
+        raise ValueError(f"expected learning rate to be larger than 0, but got {lr}")
+
+
 class Optimizer:
     def __init__(self, params):
         self.hooks = []
@@ -25,6 +30,7 @@ class Optimizer:
 
 class SGD(Optimizer):
     def __init__(self, params, lr=1e-2, momentum=0.9):
+        _check_lr(lr)
         super(SGD, self).__init__(params)
         self.vs = {}
         self.lr = lr
@@ -42,6 +48,7 @@ class SGD(Optimizer):
 
 class AdaGrad(Optimizer):
     def __init__(self, params, lr=1e-2, eps=1e-10):
+        _check_lr(lr)
         super(AdaGrad, self).__init__(params)
         self.gs = {}
         self.lr = lr
@@ -77,7 +84,7 @@ class AdaDelta(Optimizer):
         g *= rho
         g += (1 - rho) * grad * grad
         dxh = self.dxhs[key]
-        dx = np.square((dxh + eps) / (g + eps)) * grad
+        dx = np.sqrt((dxh + eps) / (g + eps)) * grad
         dxh *= rho
         dxh += (1 - rho) * dx * dx
         param.data -= dx
