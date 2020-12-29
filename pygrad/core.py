@@ -4,16 +4,7 @@ import contextlib
 import heapq
 import warnings
 import weakref
-from typing import (
-    Callable,
-    ContextManager,
-    Iterator,
-    List,
-    Optional,
-    Sequence,
-    Tuple,
-    Union,
-)
+from typing import Callable, ContextManager, Iterator, Optional, Sequence, Tuple, Union
 
 import numpy as np
 
