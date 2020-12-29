@@ -4,7 +4,16 @@ import contextlib
 import heapq
 import warnings
 import weakref
-from typing import Callable, ContextManager, Iterator, Optional, Sequence, Tuple, Union
+from typing import (
+    Callable,
+    ContextManager,
+    Iterator,
+    Optional,
+    Sequence,
+    Tuple,
+    Union,
+    overload,
+)
 
 import numpy as np
 
@@ -145,9 +154,17 @@ class Variable:
         except np.AxisError:
             raise pygrad.exceptions.AxisError(axis, self.ndim)
 
-    def reshape(self, *shape: Union[int, Sequence[int]]) -> Variable:
-        if len(shape) == 1 and isinstance(shape, (tuple, list)):
-            pygrad.functions.reshape(self, shape[0])
+    @overload
+    def reshape(self, *shape: int) -> Variable:
+        ...
+
+    @overload
+    def reshape(self, shape: Sequence[int]) -> Variable:
+        ...
+
+    def reshape(self, *shape):
+        if len(shape) == 1 and isinstance(shape[0], (tuple, list)):
+            shape = shape[0]
         return pygrad.functions.reshape(self, shape)
 
     def set_creator(self, func: Function) -> Variable:
