@@ -121,7 +121,7 @@ class Variable:
         return self.data.size
 
     @property
-    def dtype(self):
+    def dtype(self) -> np.dtype:
         return self.data.dtype
 
     @property
