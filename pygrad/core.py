@@ -4,8 +4,16 @@ import contextlib
 import heapq
 import warnings
 import weakref
-from collections.abc import Sequence
-from typing import Any, ContextManager, Iterator, Optional, Tuple, Union
+from typing import (
+    Any,
+    Callable,
+    ContextManager,
+    Iterator,
+    Optional,
+    Sequence,
+    Tuple,
+    Union,
+)
 
 import numpy as np
 
@@ -48,7 +56,7 @@ class Variable:
 
     def __init__(self, data, name: str = None):
         if isinstance(data, Variable):
-            data = data.data
+            data: np.ndarray = data.data  # type: ignore
         self.data = np.asarray(data)
         data_dtype = self.data.dtype
         if not np.can_cast(data_dtype, np.number):
@@ -58,14 +66,14 @@ class Variable:
         if name and not isinstance(name, str):
             raise TypeError(f"invalid data type '{type(name).__name__}' for `name`")
         self.name = name
-        self.grad = None
-        self.creator = None
-        self.generation = 0
+        self.grad: Optional[Variable] = None
+        self.creator: Optional[Function] = None
+        self.generation: int = 0
 
     def __len__(self) -> int:
         return len(self.data)
 
-    def __eq__(self, other) -> bool:
+    def __eq__(self, other: object) -> bool:
         if isinstance(other, Variable):
             return np.array_equal(self.data, other.data)
         return False
@@ -76,8 +84,41 @@ class Variable:
             return f"Variable({data_string})"
         return f"Variable({data_string}), {self.name}"
 
+    def __neg__(self):
+        return Neg()(self)
+
+    def __add__(self, other):
+        return Add()(self, other)
+
+    def __radd__(self, other):
+        return Add()(self, other)
+
+    def __sub__(self, other):
+        return Sub(self)(other)
+
+    def __rsub__(self, other):
+        return Sub(other)(self)
+
+    def __mul__(self, other):
+        return Mul()(self, other)
+
+    def __rmul__(self, other):
+        return Mul()(self, other)
+
+    def __truediv__(self, other):
+        return Div()(self, other)
+
+    def __rtruediv__(self, other):
+        return Div()(other, self)
+
+    def __pow__(self, other):
+        return Pow(other)(self)
+
+    def __getitem__(self, key):
+        return pygrad.functions.get_item(self, key)
+
     @property
-    def shape(self) -> Tuple[int]:
+    def shape(self) -> Tuple[int, ...]:
         return self.data.shape
 
     @property
@@ -107,18 +148,18 @@ class Variable:
             raise pygrad.exceptions.AxisError(axes, self.ndim)
         return pygrad.functions.transpose(self, None or axes)
 
-    def sum(self, axis=None, keepdims=False) -> Variable:
+    def sum(self, axis: int = None, keepdims: bool = False) -> Variable:
         try:
             return pygrad.functions.sum(self, axis, keepdims)
         except np.AxisError:
             raise pygrad.exceptions.AxisError(axis, self.ndim)
 
-    def reshape(self, *shape) -> Variable:
+    def reshape(self, *shape: Union[int, Sequence[int]]) -> Variable:
         if len(shape) == 1 and isinstance(shape, (tuple, list)):
-            shape = shape[0]
+            pygrad.functions.reshape(self, shape[0])
         return pygrad.functions.reshape(self, shape)
 
-    def set_creator(self, func) -> Variable:
+    def set_creator(self, func: Function) -> Variable:
         self.creator = func
         self.generation = func.generation + 1
         return self
@@ -165,27 +206,26 @@ class Function:
         outputs = [as_variable(y) for y in ys]
         if Config.enable_backprop:
             self.inputs = variables
-            self.generation = max([x.generation for x in inputs])
+            self.generation = max([x.generation for x in variables])
             self.outputs = [weakref.ref(output.set_creator(self)) for output in outputs]
         if len(outputs) > 1:
             return outputs
         return outputs[0]
 
-    def __lt__(self, other) -> bool:
+    def __lt__(self, other: Function) -> bool:
         return self.generation > other.generation
 
-    def forward(self, *args, **kwargs):
-        raise NotImplementedError
+    forward: Callable[..., np.ndarray]
 
-    def backward(self, gys):
+    def backward(self, gys: Variable) -> Union[Variable, Tuple[Variable, Variable]]:
         raise NotImplementedError
 
 
 class Add(Function):
-    def forward(self, x0: np.ndarray, x1: np.ndarray):
+    def forward(self, x0: np.ndarray, x1: np.ndarray) -> np.ndarray:
         return x0 + x1
 
-    def backward(self, gy):
+    def backward(self, gy: Variable) -> Tuple[Variable, Variable]:
         x0, x1 = self.inputs
         gx0 = gy
         gx1 = gy
@@ -195,15 +235,15 @@ class Add(Function):
         return gx0, gx1
 
 
-def add(x0: Variable, x1: Variable) -> Variable:
+def add(x0, x1) -> Variable:
     return Add()(x0, x1)
 
 
 class Neg(Function):
-    def forward(self, x):
+    def forward(self, x: np.ndarray) -> np.ndarray:
         return -x
 
-    def backward(self, gy):
+    def backward(self, gy: Variable) -> Variable:
         return -gy
 
 
@@ -212,10 +252,10 @@ def neg(x: Variable) -> Variable:
 
 
 class Sub(Function):
-    def forward(self, x0, x1):
+    def forward(self, x0: np.ndarray, x1: np.ndarray) -> np.ndarray:
         return x0 - x1
 
-    def backward(self, gy):
+    def backward(self, gy: Variable) -> Tuple[Variable, Variable]:
         x0, x1 = self.inputs
         gx0 = gy
         gx1 = -gy
@@ -291,15 +331,5 @@ def pow(x, c):
     return Pow(c)(x)
 
 
-def setup_variable() -> None:
-    Variable.__neg__ = neg
-    Variable.__add__ = add
-    Variable.__radd__ = add
-    Variable.__sub__ = sub
-    Variable.__rsub__ = rsub
-    Variable.__mul__ = mul
-    Variable.__rmul__ = mul
-    Variable.__truediv__ = div
-    Variable.__rtruediv__ = rdiv
-    Variable.__pow__ = pow
-    Variable.__getitem__ = pygrad.functions.get_item
+def setup_variable():
+    pass
