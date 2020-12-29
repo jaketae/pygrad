@@ -1,17 +1,21 @@
 import os
 import subprocess
+from typing import Any, Callable, Tuple
 
 import matplotlib.pyplot as plt
 import numpy as np
 
-from pygrad.core import Parameter
+from pygrad.core import Function, Parameter, Variable
 
 
-def numerical_grad(f, x, eps=1e-4):
+def numerical_grad(f: Function, x, eps: float = 1e-4) -> Variable:
     return (f(x + eps) - f(x - eps)) / (2 * eps)
 
 
-def handle_shape(func):
+ShapeFuncType = Callable[[Any, Tuple[int, ...]], Variable]
+
+
+def handle_shape(func: ShapeFuncType) -> ShapeFuncType:
     def wrapper(x, shape):
         if x.shape == shape:
             return x
@@ -20,8 +24,8 @@ def handle_shape(func):
     return wrapper
 
 
-def set_module(module):
-    def decorator(func):
+def set_module(module: str) -> Callable:
+    def decorator(func: Callable) -> Callable:
         if module is not None:
             func.__module__ = module
         return func
@@ -29,7 +33,7 @@ def set_module(module):
     return decorator
 
 
-def _sum_to(x, shape):
+def _sum_to(x: np.ndarray, shape: Tuple[int, ...]) -> np.ndarray:
     ndim = len(shape)
     lead = x.ndim - ndim
     if lead < 0:
@@ -44,13 +48,13 @@ def _sum_to(x, shape):
     return y
 
 
-def _log_sum_exp(x, axis):
+def _log_sum_exp(x: np.ndarray, axis: int) -> np.ndarray:
     m = x.max(axis=axis, keepdims=True)
     y = np.exp(x - m).sum(axis=axis, keepdims=True)
     return np.add(m, np.log(y))
 
 
-def write_dot_graph(model, dpi):
+def write_dot_graph(model, dpi: int) -> str:
     nodes = {}
     edges = {}
     funcs = [output().creator for output in model.outputs]
@@ -82,7 +86,7 @@ def write_dot_graph(model, dpi):
     )
 
 
-def make_dot(f):
+def make_dot(f: Function) -> Tuple[dict, dict]:
     f_inputs = [input_ for input_ in f.inputs if not isinstance(input_, Parameter)]
     input_shapes = [input_.shape for input_ in f_inputs]
     output_shapes = [output().shape for output in f.outputs]
@@ -94,7 +98,7 @@ def make_dot(f):
     return node, edge
 
 
-def _check_graphviz():
+def _check_graphviz() -> None:
     try:
         subprocess.run("dot -V", shell=True, check=True)
     except subprocess.CalledProcessError:
@@ -103,7 +107,7 @@ def _check_graphviz():
         )
 
 
-def plot_model(model, to_file="graph.png", dpi=300):
+def plot_model(model, to_file: str = "graph.png", dpi: int = 300) -> None:
     _check_graphviz()
     graph = write_dot_graph(model, dpi)
     tmp_dir = os.path.join(os.path.expanduser("~"), ".pygrad")
@@ -121,10 +125,9 @@ def plot_model(model, to_file="graph.png", dpi=300):
         raise FileNotFoundError(f"no such file or directory {save_path}")
     plt.axis("off")
     try:
-        from IPython import display
+        from IPython import display  # noqa: F401
 
-        display.set_matplotlib_formats("retina")
-        return diplay.Image(filename=to_file)
+        return diplay.Image(filename=to_file, retina=True)  # type: ignore
     except NameError:
         import matplotlib.image as mpimg
 
