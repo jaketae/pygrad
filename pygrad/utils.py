@@ -1,7 +1,5 @@
 import os
 import subprocess
-import sys
-import warnings
 
 import matplotlib.pyplot as plt
 import numpy as np

@@ -1,6 +1,6 @@
 import numpy as np
 
-from pygrad.core import Function, as_variable
+from pygrad.core import Function
 from pygrad.utils import _log_sum_exp, _sum_to, handle_shape
 
 
