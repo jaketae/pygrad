@@ -75,37 +75,37 @@ class Variable:
             return f"Variable({data_string})"
         return f"Variable({data_string}), {self.name}"
 
-    def __neg__(self):
+    def __neg__(self) -> Variable:
         return Neg()(self)
 
-    def __add__(self, other):
+    def __add__(self, other) -> Variable:
         return Add()(self, other)
 
-    def __radd__(self, other):
+    def __radd__(self, other) -> Variable:
         return Add()(self, other)
 
-    def __sub__(self, other):
-        return Sub(self)(other)
+    def __sub__(self, other) -> Variable:
+        return Sub()(self, other)
 
-    def __rsub__(self, other):
-        return Sub(other)(self)
+    def __rsub__(self, other) -> Variable:
+        return Sub()(other, self)
 
-    def __mul__(self, other):
+    def __mul__(self, other) -> Variable:
         return Mul()(self, other)
 
-    def __rmul__(self, other):
+    def __rmul__(self, other) -> Variable:
         return Mul()(self, other)
 
-    def __truediv__(self, other):
+    def __truediv__(self, other) -> Variable:
         return Div()(self, other)
 
-    def __rtruediv__(self, other):
+    def __rtruediv__(self, other) -> Variable:
         return Div()(other, self)
 
-    def __pow__(self, other):
+    def __pow__(self, other) -> Variable:
         return Pow(other)(self)
 
-    def __getitem__(self, key):
+    def __getitem__(self, key: Union[int, slice]) -> Variable:
         return pygrad.functions.get_item(self, key)
 
     @property
