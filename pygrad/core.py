@@ -1,7 +1,11 @@
+from __future__ import annotations
+
 import contextlib
 import heapq
 import warnings
 import weakref
+from collections.abc import Sequence
+from typing import Any, ContextManager, Iterator, Optional, Tuple, Union
 
 import numpy as np
 
@@ -13,7 +17,7 @@ class Config:
 
 
 @contextlib.contextmanager
-def using_config(name, value):
+def using_config(name: str, value: bool) -> Iterator[None]:
     prev_value = getattr(Config, name)
     setattr(Config, name, value)
     try:
@@ -22,27 +26,27 @@ def using_config(name, value):
         setattr(Config, name, prev_value)
 
 
-def no_grad():
+def no_grad() -> ContextManager[None]:
     return using_config("enable_backprop", False)
 
 
-def as_tuple(x):
+def as_tuple(x) -> tuple:
     if not isinstance(x, tuple):
         return (x,)
     return x
 
 
-def as_variable(obj):
-    if isinstance(obj, Variable):
-        return obj
-    return Variable(obj)
+def as_variable(x) -> Variable:
+    if isinstance(x, Variable):
+        return x
+    return Variable(x)
 
 
 class Variable:
 
     __array_priority__ = 100
 
-    def __init__(self, data, name=None):
+    def __init__(self, data, name: str = None):
         if isinstance(data, Variable):
             data = data.data
         self.data = np.asarray(data)
@@ -58,30 +62,30 @@ class Variable:
         self.creator = None
         self.generation = 0
 
-    def __len__(self):
+    def __len__(self) -> int:
         return len(self.data)
 
-    def __eq__(self, other):
+    def __eq__(self, other) -> bool:
         if isinstance(other, Variable):
             return np.array_equal(self.data, other.data)
         return False
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         data_string = str(self.data).replace("\n", "\n" + " " * 9)
         if self.name is None:
             return f"Variable({data_string})"
         return f"Variable({data_string}), {self.name}"
 
     @property
-    def shape(self):
+    def shape(self) -> Tuple[int]:
         return self.data.shape
 
     @property
-    def ndim(self):
+    def ndim(self) -> int:
         return self.data.ndim
 
     @property
-    def size(self):
+    def size(self) -> int:
         return self.data.size
 
     @property
@@ -89,42 +93,40 @@ class Variable:
         return self.data.dtype
 
     @property
-    def T(self):
+    def T(self) -> Variable:
         if self.ndim == 0:
             return self
         return pygrad.functions.transpose(self)
 
-    def transpose(self, *axes):
+    def transpose(self, *axes: int) -> Variable:
         if self.ndim == 0:
             return self
-        if len(axes) == 0:
-            axes = None
-        elif len(axes) == 1 and isinstance(axes[0], (tuple, list)) or axes[0] is None:
+        if len(axes) == 1 and isinstance(axes[0], (tuple, list)) or axes[0] is None:
             axes = axes[0]
         if len(axes) > self.ndim:
             raise pygrad.exceptions.AxisError(axes, self.ndim)
-        return pygrad.functions.transpose(self, axes)
+        return pygrad.functions.transpose(self, None or axes)
 
-    def sum(self, axis=None, keepdims=False):
+    def sum(self, axis=None, keepdims=False) -> Variable:
         try:
             return pygrad.functions.sum(self, axis, keepdims)
         except np.AxisError:
             raise pygrad.exceptions.AxisError(axis, self.ndim)
 
-    def reshape(self, *shape):
+    def reshape(self, *shape) -> Variable:
         if len(shape) == 1 and isinstance(shape, (tuple, list)):
             shape = shape[0]
         return pygrad.functions.reshape(self, shape)
 
-    def set_creator(self, func):
+    def set_creator(self, func) -> Variable:
         self.creator = func
         self.generation = func.generation + 1
         return self
 
-    def clear_grad(self):
+    def clear_grad(self) -> None:
         self.grad = None
 
-    def backward(self, retain_grad=False, create_graph=False):
+    def backward(self, retain_grad: bool = False, create_graph: bool = False) -> None:
         if self.creator is None:
             raise RuntimeError("backward pass on a root variable")
         if self.data.size != 1:
@@ -157,22 +159,22 @@ class Parameter(Variable):
 
 class Function:
     def __call__(self, *inputs):
-        inputs = [as_variable(x) for x in inputs]
-        xs = [x.data for x in inputs]
+        variables = [as_variable(x) for x in inputs]
+        xs = [x.data for x in variables]
         ys = as_tuple(self.forward(*xs))
         outputs = [as_variable(y) for y in ys]
         if Config.enable_backprop:
-            self.inputs = inputs
+            self.inputs = variables
             self.generation = max([x.generation for x in inputs])
             self.outputs = [weakref.ref(output.set_creator(self)) for output in outputs]
         if len(outputs) > 1:
             return outputs
         return outputs[0]
 
-    def __lt__(self, other):
+    def __lt__(self, other) -> bool:
         return self.generation > other.generation
 
-    def forward(self, xs):
+    def forward(self, *args, **kwargs):
         raise NotImplementedError
 
     def backward(self, gys):
@@ -180,7 +182,7 @@ class Function:
 
 
 class Add(Function):
-    def forward(self, x0, x1):
+    def forward(self, x0: np.ndarray, x1: np.ndarray):
         return x0 + x1
 
     def backward(self, gy):
@@ -193,7 +195,7 @@ class Add(Function):
         return gx0, gx1
 
 
-def add(x0, x1):
+def add(x0: Variable, x1: Variable) -> Variable:
     return Add()(x0, x1)
 
 
@@ -205,7 +207,7 @@ class Neg(Function):
         return -gy
 
 
-def neg(x):
+def neg(x: Variable) -> Variable:
     return Neg()(x)
 
 
@@ -289,7 +291,7 @@ def pow(x, c):
     return Pow(c)(x)
 
 
-def setup_variable():
+def setup_variable() -> None:
     Variable.__neg__ = neg
     Variable.__add__ = add
     Variable.__radd__ = add
