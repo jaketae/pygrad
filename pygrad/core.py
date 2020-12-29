@@ -4,7 +4,16 @@ import contextlib
 import heapq
 import warnings
 import weakref
-from typing import Callable, ContextManager, Iterator, Optional, Sequence, Tuple, Union
+from typing import (
+    Callable,
+    ContextManager,
+    Iterator,
+    List,
+    Optional,
+    Sequence,
+    Tuple,
+    Union,
+)
 
 import numpy as np
 
@@ -208,7 +217,9 @@ class Function:
 
     forward: Callable[..., np.ndarray]
 
-    def backward(self, gys: Variable) -> Union[Variable, Tuple[Variable, Variable]]:
+    def backward(
+        self, gys: Variable
+    ) -> Union[Variable, Tuple[Optional[Variable], ...]]:
         raise NotImplementedError
 
 
