@@ -249,10 +249,10 @@ class Sub(Function):
 
 
 class Mul(Function):
-    def forward(self, x0, x1):
+    def forward(self, x0: np.ndarray, x1: np.ndarray) -> np.ndarray:
         return x0 * x1
 
-    def backward(self, gy):
+    def backward(self, gy: Variable) -> Tuple[Variable, Variable]:
         x0, x1 = self.inputs
         gx0 = gy * x1
         gx1 = gy * x0
@@ -263,12 +263,12 @@ class Mul(Function):
 
 
 class Div(Function):
-    def forward(self, x0, x1):
+    def forward(self, x0: np.ndarray, x1: np.ndarray) -> np.ndarray:
         if 0 in x1:
             raise ZeroDivisionError("division by variable containing zero")
         return x0 / x1
 
-    def backward(self, gy):
+    def backward(self, gy: Variable) -> Tuple[Variable, Variable]:
         x0, x1 = self.inputs
         gx0 = gy / x1
         gx1 = -gy * x0 / (x1 ** 2)
@@ -282,9 +282,9 @@ class Pow(Function):
     def __init__(self, c):
         self.c = c
 
-    def forward(self, x):
+    def forward(self, x: np.ndarray) -> np.ndarray:
         return x ** self.c
 
-    def backward(self, gy):
+    def backward(self, gy: Variable) -> Variable:
         x = self.inputs[0]
         return gy * self.c * x ** (self.c - 1)
