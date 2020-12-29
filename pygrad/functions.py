@@ -68,7 +68,7 @@ def tanh(x) -> Variable:
 
 
 class Reshape(Function):
-    def __init__(self, shape: Union[int, Sequence[int]]):
+    def __init__(self, shape: Tuple[int, ...]):
         self.shape = shape
 
     def forward(self, x: np.ndarray) -> np.ndarray:
@@ -80,7 +80,7 @@ class Reshape(Function):
 
 
 @handle_shape
-def reshape(x, shape: Union[int, Sequence[int]]) -> Variable:
+def reshape(x, shape: Tuple[int, ...]) -> Variable:
     return Reshape(shape)(x)
 
 
