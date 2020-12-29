@@ -4,16 +4,7 @@ import contextlib
 import heapq
 import warnings
 import weakref
-from typing import (
-    Any,
-    Callable,
-    ContextManager,
-    Iterator,
-    Optional,
-    Sequence,
-    Tuple,
-    Union,
-)
+from typing import Any, Callable, ContextManager, Iterator, Optional, Sequence, Tuple, Union
 
 import numpy as np
 
@@ -235,20 +226,12 @@ class Add(Function):
         return gx0, gx1
 
 
-def add(x0, x1) -> Variable:
-    return Add()(x0, x1)
-
-
 class Neg(Function):
     def forward(self, x: np.ndarray) -> np.ndarray:
         return -x
 
     def backward(self, gy: Variable) -> Variable:
         return -gy
-
-
-def neg(x: Variable) -> Variable:
-    return Neg()(x)
 
 
 class Sub(Function):
@@ -265,14 +248,6 @@ class Sub(Function):
         return gx0, gx1
 
 
-def sub(x0, x1):
-    return Sub()(x0, x1)
-
-
-def rsub(x0, x1):
-    return Sub()(x1, x0)
-
-
 class Mul(Function):
     def forward(self, x0, x1):
         return x0 * x1
@@ -285,10 +260,6 @@ class Mul(Function):
             gx0 = pygrad.functions.sum_to(gx0, x0.shape)
             gx1 = pygrad.functions.sum_to(gx1, x1.shape)
         return gx0, gx1
-
-
-def mul(x0, x1):
-    return Mul()(x0, x1)
 
 
 class Div(Function):
@@ -307,14 +278,6 @@ class Div(Function):
         return gx0, gx1
 
 
-def div(x0, x1):
-    return Div()(x0, x1)
-
-
-def rdiv(x0, x1):
-    return Div()(x1, x0)
-
-
 class Pow(Function):
     def __init__(self, c):
         self.c = c
@@ -325,11 +288,3 @@ class Pow(Function):
     def backward(self, gy):
         x = self.inputs[0]
         return gy * self.c * x ** (self.c - 1)
-
-
-def pow(x, c):
-    return Pow(c)(x)
-
-
-def setup_variable():
-    pass

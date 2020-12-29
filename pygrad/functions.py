@@ -382,4 +382,3 @@ class Dropout(Function):
 
 def dropout(x, dropout, train):
     return Dropout(dropout, train)(x)
-

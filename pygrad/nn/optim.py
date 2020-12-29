@@ -130,4 +130,3 @@ class Adam(Optimizer):
         m += (1 - b1) * (grad - m)
         v += (1 - b2) * (grad * grad - v)
         param.data -= self.alpha * m / (np.sqrt(v) + self.eps)
-
