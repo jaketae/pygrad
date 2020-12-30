@@ -40,23 +40,31 @@ To verify that the upstream has correctly been added to the list of remotes, run
 
 ## Code Checks
 
-PyGrad's coding style is dictated by [black](https://black.readthedocs.io/en/stable/). Additionally, [isort](https://pycqa.github.io/isort/) is used to sort module imports. For [PEP 8](https://www.python.org/dev/peps/pep-0008/) errors and static type checking, we use [flake8](https://flake8.pycqa.org/en/latest/) and [mypy](https://mypy.readthedocs.io), respectively. 
+PyGrad's coding style is dictated by [black](https://black.readthedocs.io/en/stable/). Additionally, [isort](https://pycqa.github.io/isort/) is used to sort module imports. For [PEP 8](https://www.python.org/dev/peps/pep-0008/) errors and static type checking, we use [flake8](https://flake8.pycqa.org/en/latest/) and [mypy](https://mypy.readthedocs.io), respectively.
 
-Minimal modifications have been made to the default configurations of each module to prevent collisions. For more information on these modified configurations, please refer to [`setup.cfg`](https://github.com/jaketae/pygrad/blob/master/setup.cfg). 
+Minimal modifications have been made to the default configurations of each module to prevent collisions. For more information on these modified configurations, please refer to [`setup.cfg`](https://github.com/jaketae/pygrad/blob/master/setup.cfg).
 
-For convenience purposes, we have created a [`Makefile`](https://github.com/jaketae/pygrad/blob/master/Makefile)  that contains commands to check and lint files in relevant directories. To lint, run the following command in the root directory:
+For convenience purposes, we have created a [`Makefile`](https://github.com/jaketae/pygrad/blob/master/Makefile) that contains commands to check and lint files in relevant directories. To lint, run the following command in the root directory:
 
 ```
 make style
 ```
 
-To perform quality checks on the code base, including unit tests, type
+To perform quality checks on the code base, type
 
 ```
 make quality
 ```
 
-Note that the quality check will not run the linter; it will only show errors and indicate where they are located. Please make sure to run both commands before opening a pull request.
+Note that the quality check will not run the linter; it will only show errors and traces.
+
+Last but not least, to run all unit tests, run
+
+```
+make test
+```
+
+Please make sure to run all three commands before opening a pull request.
 
 ## Pull Request
 
