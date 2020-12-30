@@ -211,6 +211,7 @@ In this instance, calling `plot()` on the model yields the following image.
 <div align="center">
     <img src="https://raw.githubusercontent.com/jaketae/pygrad/master/assets/model_plot.png" width="250" alt="model_plot">
 </div>
+
 ## Contributing
 
 Please refer to [CONTRIBUTING](https://github.com/jaketae/pygrad/blob/master/CONTRIBUTING.md).
