@@ -79,4 +79,7 @@ model.plot()
 
 In this instance, calling `plot()` on the model yields the following image.
 
-![./_static/model_plot.png](./_static/model_plot.png)
+<div align="center">
+    <img src="https://raw.githubusercontent.com/jaketae/pygrad/master/docs/source/_static/model_plot.png" width="250" alt="model_plot">
+</div>
+
