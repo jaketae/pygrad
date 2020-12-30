@@ -16,5 +16,4 @@ PyGrad is a pure Python automatic differentiation and neural network library.
    autograd
    module
    optimizer
-   dataset
-   dataloader
+   data
