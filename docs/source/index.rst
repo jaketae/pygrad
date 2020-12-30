@@ -6,15 +6,15 @@
 Welcome to PyGrad's documentation!
 ==================================
 
+PyGrad is a pure Python automatic differentiation and neural network library. 
+
 .. toctree::
    :maxdepth: 2
    :caption: Contents:
 
-
-
-Indices and tables
-==================
-
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
+   installation
+   autograd
+   module
+   optimizer
+   dataset
+   dataloader
