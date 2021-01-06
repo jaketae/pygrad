@@ -1,10 +1,12 @@
 # PyGrad
 
-PyGrad is a [NumPy](https://numpy.org)-based pure Python mini automatic differentiation library. Adopting a define-by-run approach, PyGrad provides a clear, intuitive interface for constructing computational graphs, calculating gradients, and solving optimization problems. Building on top of these strengths as an autograd library, PyGrad also offers a minimal neural network API, inspired heavily by [PyTorch](https://pytorch.org). 
+[![Documentation Status](https://readthedocs.org/projects/pygrad/badge/?version=latest)](https://pygrad.readthedocs.io/en/latest/?badge=latest) [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
+
+PyGrad is a [NumPy](https://numpy.org)-based pure Python mini automatic differentiation library. Adopting a define-by-run approach, PyGrad provides a clear, intuitive interface for constructing computational graphs, calculating gradients, and solving optimization problems. Building on top of these strengths as an autograd library, PyGrad also offers a minimal neural network API, inspired heavily by [PyTorch](https://pytorch.org).
 
 ## Installation
 
-PyGrad is available on PyPi. 
+PyGrad is available on PyPi.
 
 ```
 pip install pygrad
@@ -22,7 +24,7 @@ Full documentation to be made available at [PyGrad docs](https://pygrad.readthed
 
 ### Variable Class
 
-PyGrad's main data class is `Variable`, through which computational graphs can be created. 
+PyGrad's main data class is `Variable`, through which computational graphs can be created.
 
 ```python
 >>> from pygrad import Variable
@@ -42,7 +44,7 @@ Variable([[2 3]
           [4 5]])
 ```
 
-Since PyGrad uses NumPy as its backend, it supports broadcasting as well as other matrix operations including transpose, reshape, and matrix multiplication. 
+Since PyGrad uses NumPy as its backend, it supports broadcasting as well as other matrix operations including transpose, reshape, and matrix multiplication.
 
 ```python
 >>> m1.T
@@ -99,7 +101,7 @@ class NeuralNet(nn.Module):
         self.fc1 = nn.Linear(num_input, num_hidden)
         self.fc2 = nn.Linear(num_hidden, num_class)
         self.dropout = nn.Dropout(dropout)
-        
+
     def forward(self, x):
         x = self.fc1(x)
         x = F.relu(x)
@@ -108,11 +110,11 @@ class NeuralNet(nn.Module):
         return x
 ```
 
-`pygrad.nn` includes layers and the `Module` class through which neural networks can be initialized. Also noteworthy is `pygrad.functions`, which includes activation functions, trigonometric functions, as well as a host of other basic functions operations, such as reshape and transpose. 
+`pygrad.nn` includes layers and the `Module` class through which neural networks can be initialized. Also noteworthy is `pygrad.functions`, which includes activation functions, trigonometric functions, as well as a host of other basic functions operations, such as reshape and transpose.
 
 ### Saving and Loading Models
 
-PyGrad offers an easy way of saving and loading model weights. 
+PyGrad offers an easy way of saving and loading model weights.
 
 ```python
 PATH = "my/model/save/path/filename.npy"
@@ -152,7 +154,7 @@ Under the hood, PyGrad builds a `weight_dict` which is then serialized via NumPy
 
 ### DataLoader Class
 
-PyGrad's `DataLoader` class allows basic batching and shuffling functionality to be applied to `pygrad.data.Dataset` instances. Here, we assume a custom `Dataset` instance, called `CatDogDataset`. 
+PyGrad's `DataLoader` class allows basic batching and shuffling functionality to be applied to `pygrad.data.Dataset` instances. Here, we assume a custom `Dataset` instance, called `CatDogDataset`.
 
 ```python
 from pygrad.data import DataLoader, ratio_split
@@ -165,7 +167,7 @@ train_loader = DataLoader(train_ds, BATCH_SIZE)
 test_loader = DataLoader(test_ds, BATCH_SIZE)
 ```
 
- `DataLoader` instances can be iterated as follows:
+`DataLoader` instances can be iterated as follows:
 
 ```python
 for data, labels in train_loader:
@@ -176,10 +178,10 @@ for data, labels in train_loader:
 
 PyGrad offers a number of different optimizers. These include
 
-* `pygrad.nn.optim.SGD`
-* `pygrad.nn.optim.AdaGrad`
-* `pygrad.nn.optim.AdaDelta`
-* `pygrad.nn.optim.Adam`
+-   `pygrad.nn.optim.SGD`
+-   `pygrad.nn.optim.AdaGrad`
+-   `pygrad.nn.optim.AdaDelta`
+-   `pygrad.nn.optim.Adam`
 
 Training a model with optimizers can be done by instantiating an `nn.optim.Optimizer` object with some model's parameters. After calling `backward()` on a loss value, simply call `step()` on the optimizer to update the target model's parameters.
 
@@ -196,7 +198,7 @@ for data, labels in train_loader:
     optimizer.zero_grad()
 ```
 
-The optimizer will update the model's weights according to the gradient values of each parameter. 
+The optimizer will update the model's weights according to the gradient values of each parameter.
 
 ### Model Visualization
 
@@ -206,7 +208,7 @@ PyGrad also provides useful model visualization using [Graphviz](https://graphvi
 model.plot()
 ```
 
-In this instance, calling `plot()` on the model yields the following image. 
+In this instance, calling `plot()` on the model yields the following image.
 
 <div align="center">
     <img src="https://raw.githubusercontent.com/jaketae/pygrad/master/docs/source/_static/model_plot.png" width="250" alt="model_plot">
@@ -218,7 +220,7 @@ Please refer to [CONTRIBUTING](https://github.com/jaketae/pygrad/blob/master/CON
 
 ## Acknowledgement
 
-PyGrad started off as a refinement of [DeZero](https://github.com/oreilly-japan/deep-learning-from-scratch-3/tree/master/dezero), an educational library introduced in [Deep Learning from Scratch 3](https://koki0702.github.io/dezero-book/en/index.html), the Korean translation of which I had the honor and pleasure of reviewing as a beta reader. Much of PyGrad's initial code base was adapted from DeZero. The design language of PyGrad's neural network API was inspired by and borrowed from PyTorch. [Chainer](https://chainer.org) is also worthy of mention as well, as DeZero itself also adapted many features from Chainer. Last but not least, PyGrad would not have been made possible without NumPy. Our acknowledgement goes to all the developers who put their time and effort into developing the aforementioned libraries. 
+PyGrad started off as a refinement of [DeZero](https://github.com/oreilly-japan/deep-learning-from-scratch-3/tree/master/dezero), an educational library introduced in [Deep Learning from Scratch 3](https://koki0702.github.io/dezero-book/en/index.html), the Korean translation of which I had the honor and pleasure of reviewing as a beta reader. Much of PyGrad's initial code base was adapted from DeZero. The design language of PyGrad's neural network API was inspired by and borrowed from PyTorch. [Chainer](https://chainer.org) is also worthy of mention as well, as DeZero itself also adapted many features from Chainer. Last but not least, PyGrad would not have been made possible without NumPy. Our acknowledgement goes to all the developers who put their time and effort into developing the aforementioned libraries.
 
 ## License
 
