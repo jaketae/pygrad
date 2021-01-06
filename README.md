@@ -1,6 +1,6 @@
 # PyGrad
 
-[![Documentation Status](https://readthedocs.org/projects/pygrad/badge/?version=latest)](https://pygrad.readthedocs.io/en/latest/?badge=latest) [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
+[![Documentation Status](https://readthedocs.org/projects/pygrad/badge/?version=latest)](https://pygrad.readthedocs.io/en/latest/?badge=latest) ![test](https://github.com/jaketae/pygrad/workflows/test/badge.svg) ![lint](https://github.com/jaketae/pygrad/workflows/lint/badge.svg)[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 
 PyGrad is a [NumPy](https://numpy.org)-based pure Python mini automatic differentiation library. Adopting a define-by-run approach, PyGrad provides a clear, intuitive interface for constructing computational graphs, calculating gradients, and solving optimization problems. Building on top of these strengths as an autograd library, PyGrad also offers a minimal neural network API, inspired heavily by [PyTorch](https://pytorch.org).
 
