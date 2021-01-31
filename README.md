@@ -6,7 +6,7 @@ PyGrad is a [NumPy](https://numpy.org)-based pure Python mini automatic differen
 
 ## Installation
 
-PyGrad is available on PyPi.
+PyGrad is available on PyPI.
 
 ```
 pip install pygrad
@@ -20,7 +20,7 @@ git clone https://github.com/jaketae/pygrad.git
 
 ## Quick Start
 
-Full documentation to be made available at [PyGrad docs](https://pygrad.readthedocs.io/en/latest/).
+Full documentation is available at [PyGrad docs](https://pygrad.readthedocs.io/en/latest/).
 
 ### Variable Class
 
